@@ -1,110 +1,135 @@
-let records = JSON.parse(localStorage.getItem('my2DProData')) || [];
-displayRecords();
+let records = JSON.parse(localStorage.getItem('2D_Pro_Data')) || [];
+updateUI();
 
-function addData() {
-    const name = document.getElementById('cusName').value || "Unknown";
-    const num = document.getElementById('numInput').value;
-    const amt = document.getElementById('amtInput').value;
-
-    if (!num || !amt) return alert("ဖြည့်စွက်ရန်လိုအပ်သည်");
-
-    saveEntry(name, num, amt);
-    clearInputs();
+// Keyboard Functions
+function press(val) {
+    let input = document.getElementById('numIn');
+    if (input.value.length < 2 || val === '00') {
+        input.value += val;
+        if (input.value.length > 2) input.value = input.value.slice(-2);
+    }
 }
 
-function saveEntry(name, num, amt) {
-    records.unshift({
-        id: Date.now(),
+function backspace() {
+    let input = document.getElementById('numIn');
+    input.value = input.value.slice(0, -1);
+}
+
+// Logic for Special Keys
+function special(type) {
+    const name = document.getElementById('adminSelect').value;
+    const num = document.getElementById('numIn').value;
+    const amt = document.getElementById('amtIn').value;
+
+    if (!amt) return alert("ငွေပမာဏ အရင်ထည့်ပါ");
+
+    if (type === 'R') {
+        if (num.length < 2) return alert("ဂဏန်း ၂ လုံး ရိုက်ပါ");
+        let rev = num.split('').reverse().join('');
+        addEntry(name, num, amt, 'ရိုးရိုး');
+        if (num !== rev) addEntry(name, rev, amt, 'အလှည့် (R)');
+    } 
+    else if (type === 'အပါ') {
+        if (!num) return alert("ဂဏန်း ၁ လုံး အရင်နှိပ်ပါ");
+        for (let i = 0; i <= 9; i++) {
+            addEntry(name, num + i, amt, 'အပါ');
+            if (num != i) addEntry(name, i + num, amt, 'အပါ');
+        }
+    } 
+    else if (type === 'ထိပ်') {
+        if (!num) return alert("ထိပ်ဂဏန်း ၁ လုံး အရင်နှိပ်ပါ");
+        for (let i = 0; i <= 9; i++) addEntry(name, num + i, amt, 'ထိပ်');
+    } 
+    else if (type === 'နောက်') {
+        if (!num) return alert("နောက်ဂဏန်း ၁ လုံး အရင်နှိပ်ပါ");
+        for (let i = 0; i <= 9; i++) addEntry(name, i + num, amt, 'နောက်');
+    } 
+    else if (type === 'အပူး') {
+        const pairs = ['00','11','22','33','44','55','66','77','88','99'];
+        pairs.forEach(p => addEntry(name, p, amt, 'အပူး'));
+    }
+    document.getElementById('numIn').value = '';
+}
+
+function addData() {
+    const name = document.getElementById('adminSelect').value;
+    const num = document.getElementById('numIn').value;
+    const amt = document.getElementById('amtIn').value;
+    if (!num || !amt) return;
+    addEntry(name, num.padStart(2, '0'), amt, 'ရိုးရိုး');
+    document.getElementById('numIn').value = '';
+}
+
+function addEntry(name, num, amt, type) {
+    records.push({
+        id: Date.now() + Math.random(),
         name: name,
         number: num.toString().padStart(2, '0'),
         amount: parseInt(amt),
-        time: new Date().toLocaleTimeString()
+        type: type
     });
-    saveAndRefresh();
+    save();
 }
 
-function addSpecial(type) {
-    const name = document.getElementById('cusName').value || "Unknown";
-    const val = document.getElementById('numInput').value;
-    const amt = document.getElementById('amtInput').value;
-
-    if (!amt) return alert("ပမာဏ အရင်ထည့်ပါ");
-
-    if (type === 'R') {
-        if (!val || val.length !== 2) return alert("ဂဏန်း ၂ လုံးဖြစ်ရမည်");
-        let rev = val.split('').reverse().join('');
-        saveEntry(name, val, amt);
-        if (val !== rev) saveEntry(name, rev, amt);
-    } 
-    else if (type === 'အပါ') {
-        for(let i=0; i<=9; i++) {
-            saveEntry(name, val + i, amt);
-            if(val != i) saveEntry(name, i + val, amt);
-        }
-    }
-    else if (type === 'ထိပ်') {
-        for(let i=0; i<=9; i++) saveEntry(name, val + i, amt);
-    }
-    else if (type === 'နောက်') {
-        for(let i=0; i<=9; i++) saveEntry(name, i + val, amt);
-    }
-    else if (type === 'အပူး') {
-        const pairs = ['00','11','22','33','44','55','66','77','88','99'];
-        pairs.forEach(p => saveEntry(name, p, amt));
-    }
-    clearInputs();
-}
-
-function checkWinners() {
-    const win = document.getElementById('winNum').value;
-    if(!win) return;
+// Check Winner Logic
+function checkWinner() {
+    let winNum = prompt("ယနေ့ ပေါက်ဂဏန်း ရိုက်ထည့်ပါ (ဥပမာ- 56):");
+    if (!winNum) return;
     
-    // ပေါက်ဂဏန်းနဲ့ သူ့ရဲ့ R ကိုပါ စစ်ပေးမယ်
-    let winRev = win.split('').reverse().join('');
+    winNum = winNum.padStart(2, '0');
+    let winRev = winNum.split('').reverse().join('');
     
-    const winners = records.filter(r => r.number === win || r.number === winRev);
+    let winners = records.filter(r => r.number === winNum || r.number === winRev);
     
     if (winners.length === 0) {
-        alert("ပေါက်သူမရှိပါ");
+        alert("ကံထူးသူ မရှိပါ");
     } else {
-        let msg = "ပေါက်သူများစာရင်း:\n";
-        winners.forEach(w => msg += `${w.name}: ${w.number} (${w.amount} ကျပ်)\n`);
-        alert(msg);
+        let report = `ပေါက်ဂဏန်း: ${winNum}\n--- ပေါက်သူများစာရင်း ---\n`;
+        winners.forEach(w => {
+            report += `${w.name}: ${w.number} [${w.amount} ကျပ်]\n`;
+        });
+        alert(report);
     }
 }
 
-function clearInputs() {
-    document.getElementById('numInput').value = '';
-}
-
-function saveAndRefresh() {
-    localStorage.setItem('my2DProData', JSON.stringify(records));
-    displayRecords();
-}
-
-function displayRecords() {
-    const list = document.getElementById('recordsList');
-    list.innerHTML = '';
-    let total = 0;
-
-    records.forEach(r => {
-        total += r.amount;
-        list.innerHTML += `
-            <div class="bg-gray-50 p-3 rounded-xl flex justify-between items-center border border-gray-100">
-                <div>
-                    <span class="font-bold text-purple-600">${r.number}</span> 
-                    <span class="text-xs text-gray-400 ml-2">(${r.name})</span>
-                </div>
-                <div class="flex items-center gap-4">
-                    <span class="font-bold">${r.amount}</span>
-                    <button onclick="deleteRow(${r.id})" class="text-red-300 text-xs">ဖျက်</button>
-                </div>
-            </div>`;
-    });
-    document.getElementById('totalAmount').innerText = total.toLocaleString();
+function save() {
+    localStorage.setItem('2D_Pro_Data', JSON.stringify(records));
+    updateUI();
 }
 
 function deleteRow(id) {
     records = records.filter(r => r.id !== id);
-    saveAndRefresh();
+    save();
 }
+
+function clearAll() {
+    if (confirm("စာရင်းအားလုံး ဖျက်မှာ သေချာလား?")) {
+        records = [];
+        save();
+    }
+}
+
+function updateUI() {
+    const tbody = document.getElementById('tableBody');
+    const emptyMsg = document.getElementById('emptyMsg');
+    tbody.innerHTML = '';
+    let total = 0;
+
+    if (records.length > 0) emptyMsg.style.display = 'none';
+    else emptyMsg.style.display = 'block';
+
+    records.slice().reverse().forEach(r => {
+        total += r.amount;
+        tbody.innerHTML += `
+            <tr class="border-b text-sm">
+                <td class="py-3 text-blue-600">${r.number}</td>
+                <td>${r.amount}</td>
+                <td class="text-xs text-gray-400 font-normal">${r.type}</td>
+                <td class="text-xs text-orange-500">${r.name}</td>
+                <td><button onclick="deleteRow(${r.id})" class="text-red-400 text-lg">×</button></td>
+            </tr>`;
+    });
+
+    document.getElementById('totalAmount').innerText = total.toLocaleString();
+    document.getElementById('slipCount').innerText = records.length;
+                 
