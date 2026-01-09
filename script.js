@@ -1,40 +1,164 @@
-// Data Storage
 let records = JSON.parse(localStorage.getItem('2D_Manager_Records')) || [];
 let customNames = JSON.parse(localStorage.getItem('2D_Manager_Names')) || ["Admin"];
 
-// စစချင်းတွင် နာမည်များကို Dropdown ထဲ ထည့်မည်
 updateNameDropdown();
 updateUI();
 
-// Keyboard အလုပ်လုပ်ရန်
+// Keyboard Logic
 function numPress(val) {
-    const display = document.getElementById('displayNum');
-    if (display.value.length < 2) {
-        display.value += val;
-    } else if (val === '00') {
-        display.value = '00';
-    } else {
-        display.value = val; // ၂ လုံးကျော်ရင် အသစ်ပြန်စ
-    }
+    const d = document.getElementById('displayNum');
+    if (d.value.length < 2) d.value += val;
+    else if (val === '00') d.value = '00';
+    else d.value = val;
 }
+function delPress() { document.getElementById('displayNum').value = ''; }
 
-function delPress() {
-    const display = document.getElementById('displayNum');
-    display.value = display.value.slice(0, -1);
-}
-
-// နာမည်အသစ်ပေါင်းထည့်ရန်
+// နာမည်စီမံခန့်ခွဲမှု
 function addNewName() {
-    const nameInput = document.getElementById('newNameInput');
-    const name = nameInput.value.trim();
+    const input = document.getElementById('newNameInput');
+    const name = input.value.trim();
     if (name && !customNames.includes(name)) {
         customNames.push(name);
-        localStorage.setItem('2D_Manager_Names', JSON.stringify(customNames));
-        updateNameDropdown();
-        nameInput.value = '';
-        alert("နာမည်အသစ် ပေါင်းထည့်ပြီးပါပြီ");
+        saveNames();
+        input.value = '';
     }
 }
+
+function deleteName(name) {
+    if (name === "Admin") return alert("Admin ကို ဖျက်၍မရပါ");
+    if (confirm(`${name} ကို ဖျက်မှာ သေချာပါသလား?`)) {
+        customNames = customNames.filter(n => n !== name);
+        saveNames();
+    }
+}
+
+function saveNames() {
+    localStorage.setItem('2D_Manager_Names', JSON.stringify(customNames));
+    updateNameDropdown();
+}
+
+function updateNameDropdown() {
+    const selector = document.getElementById('nameSelector');
+    const listCont = document.getElementById('nameListContainer');
+    selector.innerHTML = '';
+    listCont.innerHTML = '';
+
+    customNames.forEach(n => {
+        // Dropdown အတွက်
+        let opt = document.createElement('option');
+        opt.value = n; opt.innerHTML = n;
+        selector.appendChild(opt);
+
+        // ဖျက်ရန် ခလုတ်လေးများအတွက်
+        let badge = document.createElement('div');
+        badge.className = "bg-slate-600 px-2 py-1 rounded text-xs flex items-center gap-2";
+        badge.innerHTML = `${n} <button onclick="deleteName('${n}')" class="text-red-400 font-bold">×</button>`;
+        listCont.appendChild(badge);
+    });
+}
+
+// ပေါက်သူစာရင်း Page ပြသခြင်း
+function checkWinner() {
+    const winNum = document.getElementById('winningNumInput').value;
+    if (!winNum) return alert("ပေါက်ဂဏန်း အရင်ရိုက်ပါ");
+
+    const winPad = winNum.padStart(2, '0');
+    const winRev = winPad.split('').reverse().join('');
+    const winners = records.filter(r => r.number === winPad || r.number === winRev);
+
+    // Page ပြောင်းလဲခြင်း
+    document.getElementById('winNumDisplay').innerText = winPad;
+    const cont = document.getElementById('winnerListContainer');
+    cont.innerHTML = '';
+
+    if (winners.length === 0) {
+        cont.innerHTML = '<p class="text-center text-gray-400 py-10 italic">ကံထူးသူ မရှိပါ</p>';
+    } else {
+        winners.forEach(w => {
+            cont.innerHTML += `
+                <div class="bg-white p-4 rounded-xl shadow-sm border-l-4 border-purple-600 flex justify-between items-center">
+                    <div>
+                        <p class="font-bold text-gray-800 text-lg">${w.name}</p>
+                        <p class="text-sm text-gray-400">ဂဏန်း: ${w.number}</p>
+                    </div>
+                    <p class="text-xl font-black text-purple-600">${w.amount.toLocaleString()} ကျပ်</p>
+                </div>`;
+        });
+    }
+    document.getElementById('winnerPage').classList.remove('page-hidden');
+}
+
+function closeWinnerPage() {
+    document.getElementById('winnerPage').classList.add('page-hidden');
+}
+
+// စာရင်းသွင်းခြင်းနှင့် UI Update
+function addCurrentEntry() {
+    const num = document.getElementById('displayNum').value;
+    const amt = document.getElementById('displayAmt').value;
+    const name = document.getElementById('nameSelector').value;
+    if (!num || !amt) return;
+
+    records.push({ id: Date.now(), number: num.padStart(2, '0'), amount: parseInt(amt), name: name });
+    saveRecords();
+    document.getElementById('displayNum').value = '';
+}
+
+function runSpecial(type) {
+    const num = document.getElementById('displayNum').value;
+    const amt = document.getElementById('displayAmt').value;
+    const name = document.getElementById('nameSelector').value;
+    if (!amt) return alert("ငွေပမာဏ အရင်ထည့်ပါ");
+
+    if (type === 'R') {
+        if (num.length < 2) return;
+        let rev = num.split('').reverse().join('');
+        records.push({ id: Date.now(), number: num, amount: parseInt(amt), name: name });
+        if (num !== rev) records.push({ id: Date.now()+1, number: rev, amount: parseInt(amt), name: name });
+    } else if (type === 'အပါ') {
+        for (let i = 0; i <= 9; i++) {
+            records.push({ id: Date.now()+i, number: num+i, amount: parseInt(amt), name: name });
+            if (num != i) records.push({ id: Date.now()+i+20, number: i+num, amount: parseInt(amt), name: name });
+        }
+    } else if (type === 'ထိပ်') {
+        for (let i = 0; i <= 9; i++) records.push({ id: Date.now()+i, number: num+i, amount: parseInt(amt), name: name });
+    } else if (type === 'နောက်') {
+        for (let i = 0; i <= 9; i++) records.push({ id: Date.now()+i, number: i+num, amount: parseInt(amt), name: name });
+    } else if (type === 'အပူး') {
+        ['00','11','22','33','44','55','66','77','88','99'].forEach((p, idx) => {
+            records.push({ id: Date.now()+idx, number: p, amount: parseInt(amt), name: name });
+        });
+    }
+    saveRecords();
+    document.getElementById('displayNum').value = '';
+}
+
+function saveRecords() {
+    localStorage.setItem('2D_Manager_Records', JSON.stringify(records));
+    updateUI();
+}
+
+function updateUI() {
+    const tbody = document.getElementById('tableBody');
+    tbody.innerHTML = '';
+    let total = 0;
+    records.slice().reverse().forEach(r => {
+        total += r.amount;
+        tbody.innerHTML += `
+            <tr class="border-b">
+                <td class="p-2 text-blue-600">${r.number}</td>
+                <td>${r.amount.toLocaleString()}</td>
+                <td class="text-orange-600 text-xs">${r.name}</td>
+                <td><button onclick="deleteRow(${r.id})" class="text-red-500">×</button></td>
+            </tr>`;
+    });
+    document.getElementById('totalAmountDisplay').innerText = total.toLocaleString();
+}
+
+function deleteRow(id) {
+    records = records.filter(r => r.id !== id);
+    saveRecords();
+}}
 
 function updateNameDropdown() {
     const selector = document.getElementById('nameSelector');
