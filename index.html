@@ -3,31 +3,36 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>2D Pro Manager</title>
+    <title>2D Smart Manager Pro</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        .win-page { position: fixed; inset: 0; background: white; z-index: 100; display: none; }
+        .page-overlay { position: fixed; inset: 0; background: white; z-index: 100; display: none; }
         .active { display: block !important; }
-        button:active { background-color: #e2e8f0; transform: scale(0.98); }
+        button:active { transform: scale(0.96); opacity: 0.8; }
     </style>
 </head>
-<body class="bg-gray-100 font-sans">
+<body class="bg-gray-100">
 
     <div class="max-w-md mx-auto bg-white min-h-screen shadow-2xl flex flex-col">
         
         <div class="bg-slate-800 p-4 text-white">
-            <h1 class="text-center font-bold mb-3 text-blue-400">2D SMART MANAGER</h1>
+            <div class="flex justify-between items-center mb-3">
+                <h1 class="font-bold text-blue-400">2D SMART PRO</h1>
+                <button onclick="showHistory()" class="bg-slate-600 px-3 py-1 rounded text-xs flex items-center gap-1">
+                    <span class="opacity-70">📜</span> မှတ်တမ်း
+                </button>
+            </div>
             <div class="flex gap-2 mb-2">
                 <input type="text" id="newName" placeholder="နာမည်အသစ်" class="flex-1 p-2 rounded text-black outline-none text-sm">
                 <button onclick="addName()" class="bg-blue-600 px-4 py-1 rounded font-bold text-sm">ADD</button>
             </div>
-            <div id="tags" class="flex flex-wrap gap-2 mb-2 max-h-20 overflow-y-auto"></div>
+            <div id="tags" class="flex flex-wrap gap-2 mb-2 max-h-16 overflow-y-auto"></div>
             <select id="selName" class="w-full p-2 rounded text-black font-bold bg-white text-sm border-2 border-blue-500"></select>
         </div>
 
         <div class="bg-purple-100 p-3 border-b flex gap-2">
             <input type="number" id="winIn" placeholder="ပေါက်" class="w-20 p-2 rounded border-2 border-purple-400 text-center font-bold">
-            <button onclick="checkWin()" class="flex-1 bg-purple-700 text-white rounded font-bold">ပေါက်ဂဏန်းစစ်မည်</button>
+            <button onclick="checkWin()" class="flex-1 bg-purple-700 text-white rounded font-bold">ပေါက်ဂဏန်းစစ်/သိမ်းမည်</button>
         </div>
 
         <div class="flex-1 overflow-y-auto p-2">
@@ -45,77 +50,79 @@
         </div>
 
         <div class="p-3 bg-gray-50 border-t flex justify-between items-center">
-            <span class="text-gray-500">Total Amount:</span>
-            <span id="total" class="text-2xl font-black text-red-600">0</span>
+            <button onclick="clearRecords()" class="bg-red-100 text-red-600 px-3 py-1 rounded text-xs font-bold border border-red-200">Clear All</button>
+            <div class="text-right">
+                <span class="text-gray-400 text-xs block uppercase">Total Amount</span>
+                <span id="total" class="text-2xl font-black text-red-600">0</span>
+            </div>
         </div>
 
         <div class="p-3 bg-gray-200 border-t">
             <div class="grid grid-cols-2 gap-2 mb-2">
-                <input type="number" id="num" placeholder="ဂဏန်း" readonly class="p-3 text-center text-xl font-bold bg-white rounded-lg border-2 border-blue-400">
-                <input type="number" id="amt" placeholder="ငွေပမာဏ" class="p-3 text-center text-xl font-bold bg-white rounded-lg border-2 border-green-400">
+                <input type="number" id="num" placeholder="ဂဏန်း" readonly class="p-3 text-center text-2xl font-bold bg-white rounded-lg border-2 border-blue-400">
+                <input type="number" id="amt" placeholder="ငွေပမာဏ" class="p-3 text-center text-2xl font-bold bg-white rounded-lg border-2 border-green-400">
             </div>
-            
             <div class="grid grid-cols-4 gap-1">
-                <button onclick="press('7')" class="bg-white p-4 rounded font-bold">7</button>
-                <button onclick="press('8')" class="bg-white p-4 rounded font-bold">8</button>
-                <button onclick="press('9')" class="bg-white p-4 rounded font-bold">9</button>
+                <button onclick="press('7')" class="bg-white p-4 rounded shadow font-bold">7</button>
+                <button onclick="press('8')" class="bg-white p-4 rounded shadow font-bold">8</button>
+                <button onclick="press('9')" class="bg-white p-4 rounded shadow font-bold">9</button>
                 <button onclick="sp('R')" class="bg-orange-500 text-white p-4 rounded font-bold">R</button>
-                
-                <button onclick="press('4')" class="bg-white p-4 rounded font-bold">4</button>
-                <button onclick="press('5')" class="bg-white p-4 rounded font-bold">5</button>
-                <button onclick="press('6')" class="bg-white p-4 rounded font-bold">6</button>
-                <button onclick="sp('အပါ')" class="bg-orange-500 text-white p-4 rounded font-bold text-xs">အပါ</button>
-                
-                <button onclick="press('1')" class="bg-white p-4 rounded font-bold">1</button>
-                <button onclick="press('2')" class="bg-white p-4 rounded font-bold">2</button>
-                <button onclick="press('3')" class="bg-white p-4 rounded font-bold">3</button>
+                <button onclick="press('4')" class="bg-white p-4 rounded shadow font-bold">4</button>
+                <button onclick="press('5')" class="bg-white p-4 rounded shadow font-bold">5</button>
+                <button onclick="press('6')" class="bg-white p-4 rounded shadow font-bold">6</button>
+                <button onclick="sp('အပါ')" class="bg-orange-500 text-white p-4 rounded font-bold text-xs italic">ပါ</button>
+                <button onclick="press('1')" class="bg-white p-4 rounded shadow font-bold">1</button>
+                <button onclick="press('2')" class="bg-white p-4 rounded shadow font-bold">2</button>
+                <button onclick="press('3')" class="bg-white p-4 rounded shadow font-bold">3</button>
                 <button onclick="add()" class="bg-green-600 text-white p-4 rounded row-span-2 font-bold text-xl">OK</button>
-                
-                <button onclick="press('0')" class="bg-white p-4 rounded font-bold">0</button>
-                <button onclick="press('00')" class="bg-white p-4 rounded font-bold">00</button>
+                <button onclick="press('0')" class="bg-white p-4 rounded shadow font-bold">0</button>
+                <button onclick="press('00')" class="bg-white p-4 rounded shadow font-bold">00</button>
                 <button onclick="clr()" class="bg-red-500 text-white p-4 rounded font-bold">DEL</button>
             </div>
-            
             <div class="grid grid-cols-3 gap-1 mt-1">
-                <button onclick="sp('ထိပ်')" class="bg-slate-700 text-white py-3 rounded font-bold text-xs uppercase">Top</button>
-                <button onclick="sp('နောက်')" class="bg-slate-700 text-white py-3 rounded font-bold text-xs uppercase">Back</button>
-                <button onclick="sp('အပူး')" class="bg-slate-700 text-white py-3 rounded font-bold text-xs uppercase">Pair</button>
+                <button onclick="sp('ထိပ်')" class="bg-slate-700 text-white py-3 rounded font-bold text-xs uppercase italic">Top</button>
+                <button onclick="sp('နောက်')" class="bg-slate-700 text-white py-3 rounded font-bold text-xs uppercase italic">Back</button>
+                <button onclick="sp('အပူး')" class="bg-slate-700 text-white py-3 rounded font-bold text-xs uppercase italic">Pair</button>
             </div>
         </div>
     </div>
 
-    <div id="winPage" class="win-page p-6">
-        <div class="flex justify-between items-center mb-6">
-            <h2 class="text-2xl font-bold">Winners List</h2>
-            <button onclick="closeWin()" class="text-4xl">&times;</button>
+    <div id="winPage" class="page-overlay p-6 flex flex-col">
+        <div class="flex justify-between items-center mb-4">
+            <h2 class="text-2xl font-bold">Winners Result</h2>
+            <button onclick="closeWin()" class="text-4xl text-gray-400">&times;</button>
         </div>
-        <div id="res" class="space-y-3"></div>
-        <button onclick="closeWin()" class="w-full bg-blue-600 text-white py-3 mt-10 rounded-xl font-bold">Back to App</button>
+        <div id="res" class="flex-1 space-y-3 overflow-y-auto"></div>
+        <button onclick="closeWin()" class="w-full bg-blue-600 text-white py-4 mt-4 rounded-xl font-bold uppercase">Back</button>
+    </div>
+
+    <div id="historyPage" class="page-overlay p-6 flex flex-col bg-gray-50">
+        <div class="flex justify-between items-center mb-4">
+            <h2 class="text-xl font-bold">Winning History</h2>
+            <button onclick="document.getElementById('historyPage').classList.remove('active')" class="text-4xl">&times;</button>
+        </div>
+        <div id="historyList" class="flex-1 space-y-4 overflow-y-auto"></div>
     </div>
 
     <script>
-        // Data Handling
-        let recs = JSON.parse(localStorage.getItem('2D_RECS')) || [];
-        let nms = JSON.parse(localStorage.getItem('2D_NMS')) || ["Admin"];
+        let recs = JSON.parse(localStorage.getItem('2D_RECS_V2')) || [];
+        let nms = JSON.parse(localStorage.getItem('2D_NMS_V2')) || ["Admin"];
+        let hist = JSON.parse(localStorage.getItem('2D_HIST_V2')) || [];
 
-        function init() { showNames(); showList(); }
-        window.onload = init;
+        window.onload = function() { showNames(); showList(); };
 
-        // Keypad Functions
         function press(v) {
             let el = document.getElementById('num');
             if (v === '00') { el.value = '00'; return; }
-            if (el.value.length >= 2) el.value = v;
-            else el.value += v;
+            if (el.value.length >= 2) el.value = v; else el.value += v;
         }
         function clr() { document.getElementById('num').value = ''; }
 
-        // Name Management
         function addName() {
             let v = document.getElementById('newName').value.trim();
             if(v && !nms.includes(v)) {
                 nms.push(v);
-                localStorage.setItem('2D_NMS', JSON.stringify(nms));
+                localStorage.setItem('2D_NMS_V2', JSON.stringify(nms));
                 showNames();
                 document.getElementById('newName').value = '';
             }
@@ -123,7 +130,7 @@
         function delName(n) {
             if(n === "Admin") return;
             nms = nms.filter(x => x !== n);
-            localStorage.setItem('2D_NMS', JSON.stringify(nms));
+            localStorage.setItem('2D_NMS_V2', JSON.stringify(nms));
             showNames();
         }
         function showNames() {
@@ -136,7 +143,6 @@
             });
         }
 
-        // Add Data
         function add() {
             const n = document.getElementById('num').value;
             const a = document.getElementById('amt').value;
@@ -178,26 +184,25 @@
         }
 
         function save() {
-            localStorage.setItem('2D_RECS', JSON.stringify(recs));
+            localStorage.setItem('2D_RECS_V2', JSON.stringify(recs));
             showList();
         }
 
         function showList() {
-            const b = document.getElementById('list');
-            b.innerHTML = ''; let t = 0;
+            const b = document.getElementById('list'); b.innerHTML = ''; let t = 0;
             recs.slice().reverse().forEach(r => {
                 t += r.amt;
-                b.innerHTML += `<tr class="border-b"><td class="py-3 text-blue-600">${r.num}</td><td>${r.amt.toLocaleString()}</td><td class="text-orange-500">${r.name}</td><td><button onclick="delRec(${r.id})" class="text-red-500">×</button></td></tr>`;
+                b.innerHTML += `<tr class="border-b"><td class="py-3 text-blue-600">${r.num}</td><td>${r.amt.toLocaleString()}</td><td class="text-orange-500 text-[10px] uppercase">${r.name}</td><td><button onclick="delRec(${r.id})" class="text-red-500">×</button></td></tr>`;
             });
             document.getElementById('total').innerText = t.toLocaleString();
         }
 
-        function delRec(id) {
-            recs = recs.filter(r => r.id !== id);
-            save();
+        function delRec(id) { recs = recs.filter(r => r.id !== id); save(); }
+
+        function clearRecords() {
+            if(confirm("စာရင်းအားလုံးကို ဖျက်မည်မှာ သေချာပါသလား?")) { recs = []; save(); }
         }
 
-        // Winner Check
         function checkWin() {
             let w = document.getElementById('winIn').value;
             if(!w) return alert("Enter Win Number!");
@@ -205,62 +210,49 @@
             let rev = w.split('').reverse().join('');
             let wins = recs.filter(x => x.num === w || x.num === rev);
             
-            const r = document.getElementById('res');
-            r.innerHTML = `<div class="bg-purple-100 p-6 rounded-2xl text-center mb-6"><p class="text-sm">ပေါက်ဂဏန်း</p><h1 class="text-5xl font-black">${w}</h1></div>`;
+            // သိမ်းရန် (ရက်စွဲနဲ့)
+            let dateStr = new Date().toLocaleString();
+            hist.unshift({ date: dateStr, win: w, winners: wins });
+            localStorage.setItem('2D_HIST_V2', JSON.stringify(hist));
 
-            if(wins.length === 0) r.innerHTML += '<p class="text-center text-gray-400 py-10">ကံထူးသူမရှိပါ</p>';
+            const r = document.getElementById('res');
+            r.innerHTML = `<div class="bg-purple-600 p-8 rounded-2xl text-center text-white mb-6 shadow-xl shadow-purple-200"><p class="opacity-70 text-sm">ပေါက်ဂဏန်း</p><h1 class="text-6xl font-black">${w}</h1></div>`;
+
+            if(wins.length === 0) r.innerHTML += '<p class="text-center text-gray-400 py-10 italic">ကံထူးသူမရှိပါ</p>';
             else wins.forEach(x => {
-                r.innerHTML += `<div class="p-4 bg-white border shadow-sm rounded-xl flex justify-between"><div><b>${x.name}</b><br><small>${x.num}</small></div><div class="text-xl font-bold text-green-600">${x.amt.toLocaleString()}</div></div>`;
+                r.innerHTML += `<div class="p-4 bg-white border shadow-sm rounded-xl flex justify-between"><div><b class="text-gray-800">${x.name}</b><br><small class="text-gray-400">ဂဏန်း: ${x.num}</small></div><div class="text-xl font-bold text-green-600">${x.amt.toLocaleString()}</div></div>`;
             });
             document.getElementById('winPage').classList.add('active');
         }
+
         function closeWin() { document.getElementById('winPage').classList.remove('active'); }
+
+        function showHistory() {
+            const hList = document.getElementById('historyList');
+            hList.innerHTML = '';
+            if(hist.length === 0) hList.innerHTML = '<p class="text-center text-gray-400 py-20 italic">မှတ်တမ်းမရှိသေးပါ</p>';
+            
+            hist.forEach((h, idx) => {
+                hList.innerHTML += `
+                    <div class="bg-white p-4 rounded-xl shadow-sm border border-gray-200">
+                        <div class="flex justify-between items-center mb-2">
+                            <span class="text-[10px] text-gray-400 font-bold">${h.date}</span>
+                            <span class="bg-purple-600 text-white px-3 py-1 rounded-full font-black">${h.win}</span>
+                        </div>
+                        <p class="text-[11px] text-gray-500">ပေါက်သူအရေအတွက်: ${h.winners.length} ဦး</p>
+                        <button onclick="delHist(${idx})" class="text-red-400 text-[10px] mt-2 underline">ဖျက်မည်</button>
+                    </div>`;
+            });
+            document.getElementById('historyPage').classList.add('active');
+        }
+
+        function delHist(idx) {
+            if(confirm("ဤမှတ်တမ်းကို ဖျက်မလား?")) {
+                hist.splice(idx, 1);
+                localStorage.setItem('2D_HIST_V2', JSON.stringify(hist));
+                showHistory();
+            }
+        }
     </script>
-</body>
-</html>                <input type="number" id="displayNum" placeholder="ဂဏန်း" readonly class="p-3 text-center text-xl font-black border-2 border-blue-400 rounded-xl">
-                <input type="number" id="displayAmt" placeholder="ငွေပမာဏ" class="p-3 text-center text-xl font-black border-2 border-green-400 rounded-xl">
-            </div>
-            <div class="grid grid-cols-4 gap-1">
-                <button onclick="numPress('7')" class="bg-white p-3 rounded-lg shadow font-bold">7</button>
-                <button onclick="numPress('8')" class="bg-white p-3 rounded-lg shadow font-bold">8</button>
-                <button onclick="numPress('9')" class="bg-white p-3 rounded-lg shadow font-bold">9</button>
-                <button onclick="runSpecial('R')" class="bg-orange-500 text-white p-3 rounded-lg font-bold">R</button>
-                <button onclick="numPress('4')" class="bg-white p-3 rounded-lg shadow font-bold">4</button>
-                <button onclick="numPress('5')" class="bg-white p-3 rounded-lg shadow font-bold">5</button>
-                <button onclick="numPress('6')" class="bg-white p-3 rounded-lg shadow font-bold">6</button>
-                <button onclick="runSpecial('အပါ')" class="bg-orange-500 text-white p-3 rounded-lg font-bold">ပါ</button>
-                <button onclick="numPress('1')" class="bg-white p-3 rounded-lg shadow font-bold">1</button>
-                <button onclick="numPress('2')" class="bg-white p-3 rounded-lg shadow font-bold">2</button>
-                <button onclick="numPress('3')" class="bg-white p-3 rounded-lg shadow font-bold">3</button>
-                <button onclick="addCurrentEntry()" class="bg-green-600 text-white p-3 rounded-lg row-span-2 font-bold text-xl">OK</button>
-                <button onclick="numPress('0')" class="bg-white p-3 rounded-lg shadow font-bold">0</button>
-                <button onclick="numPress('00')" class="bg-white p-3 rounded-lg shadow font-bold">00</button>
-                <button onclick="delPress()" class="bg-red-500 text-white p-3 rounded-lg italic font-bold">DEL</button>
-            </div>
-            <div class="grid grid-cols-3 gap-1 mt-1">
-                <button onclick="runSpecial('ထိပ်')" class="bg-slate-700 text-white py-2 rounded-lg text-sm font-bold">ထိပ်</button>
-                <button onclick="runSpecial('နောက်')" class="bg-slate-700 text-white py-2 rounded-lg text-sm font-bold">နောက်</button>
-                <button onclick="runSpecial('အပူး')" class="bg-slate-700 text-white py-2 rounded-lg text-sm font-bold">အပူး</button>
-            </div>
-        </div>
-    </div>
-
-    <div id="winnerPage" class="win-page page-hidden p-6">
-        <div class="flex justify-between items-center mb-6">
-            <h2 class="text-2xl font-bold text-purple-700">ပေါက်သူစာရင်း</h2>
-            <button onclick="closeWinnerPage()" class="text-3xl font-bold">&times;</button>
-        </div>
-        <div class="bg-purple-100 p-4 rounded-2xl mb-4 text-center">
-            <p class="text-sm text-gray-600">ပေါက်ဂဏန်း</p>
-            <h3 id="winNumDisplay" class="text-4xl font-black text-purple-800">-</h3>
-        </div>
-        <div id="winnerListContainer" class="space-y-3">
-            </div>
-        <div class="mt-8">
-            <button onclick="closeWinnerPage()" class="w-full bg-gray-200 py-3 rounded-xl font-bold">ပြန်ထွက်မည်</button>
-        </div>
-    </div>
-
-    <script src="script.js"></script>
 </body>
 </html>
