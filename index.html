@@ -6,35 +6,36 @@
     <title>2D Pro Manager</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        .page-hidden { display: none; }
+        .win-page { position: fixed; inset: 0; background: white; z-index: 50; overflow-y: auto; }
+    </style>
 </head>
 <body class="bg-gray-200 p-2">
-    <div class="max-w-md mx-auto bg-white rounded-3xl shadow-2xl overflow-hidden flex flex-col min-h-screen">
+    <div id="mainPage" class="max-w-md mx-auto bg-white rounded-3xl shadow-2xl overflow-hidden flex flex-col min-h-screen">
         
         <div class="p-4 bg-slate-800 text-white">
-            <div class="flex gap-2 mb-2">
-                <input type="text" id="newNameInput" placeholder="နာမည်အသစ်ထည့်ရန်" class="flex-1 p-2 rounded text-black text-sm">
+            <div class="flex gap-2 mb-3">
+                <input type="text" id="newNameInput" placeholder="နာမည်အသစ်" class="flex-1 p-2 rounded text-black text-sm">
                 <button onclick="addNewName()" class="bg-blue-500 px-3 py-1 rounded text-sm font-bold">ပေါင်းထည့်</button>
             </div>
-            <div class="flex items-center gap-2">
-                <span class="text-xs">ရွေးချယ်ထားသူ:</span>
-                <select id="nameSelector" class="flex-1 p-2 rounded text-black font-bold text-sm bg-white">
-                    <option value="Admin">Admin</option>
-                </select>
-            </div>
+            <div id="nameListContainer" class="flex flex-wrap gap-2 max-h-24 overflow-y-auto mb-2 p-2 bg-slate-700 rounded">
+                </div>
+            <select id="nameSelector" class="w-full p-2 rounded text-black font-bold text-sm bg-white border-2 border-blue-400"></select>
         </div>
 
-        <div class="p-3 bg-purple-100 flex gap-2 items-center">
-            <input type="number" id="winningNumInput" placeholder="ပေါက်ဂဏန်း" class="w-24 p-2 rounded border-2 border-purple-400 text-center font-bold">
-            <button onclick="checkWinner()" class="flex-1 bg-purple-600 text-white py-2 rounded font-bold italic">ပေါက်ဂဏန်းစစ်မည်</button>
+        <div class="p-3 bg-purple-100 flex gap-2">
+            <input type="number" id="winningNumInput" placeholder="ပေါက်" class="w-20 p-2 rounded border-2 border-purple-400 text-center font-bold">
+            <button onclick="checkWinner()" class="flex-1 bg-purple-600 text-white py-2 rounded font-bold">ပေါက်ဂဏန်းစစ်မည်</button>
         </div>
 
-        <div class="flex-1 overflow-y-auto p-2" style="max-height: 250px;">
+        <div class="flex-1 overflow-y-auto p-2">
             <table class="w-full text-sm">
                 <thead class="bg-gray-100 sticky top-0">
                     <tr class="border-b">
                         <th class="p-2">ဂဏန်း</th>
                         <th>ငွေ</th>
-                        <th>နာမည်</th>
+                        <th>အမည်</th>
                         <th>-</th>
                     </tr>
                 </thead>
@@ -42,38 +43,54 @@
             </table>
         </div>
 
-        <div class="bg-gray-50 p-4 border-t shadow-inner">
-            <div class="grid grid-cols-2 gap-2 mb-3">
-                <input type="number" id="displayNum" placeholder="ဂဏန်း" readonly class="p-4 text-center text-2xl font-black bg-white border-2 border-blue-400 rounded-2xl">
-                <input type="number" id="displayAmt" placeholder="ငွေပမာဏ" class="p-4 text-center text-2xl font-black bg-white border-2 border-green-400 rounded-2xl">
+        <div class="p-3 bg-slate-100 border-t flex justify-between items-center">
+            <span class="text-gray-500 font-bold">စုစုပေါင်း (Total):</span>
+            <span id="totalAmountDisplay" class="text-2xl font-black text-red-600">0</span>
+        </div>
+
+        <div class="bg-gray-50 p-3 border-t">
+            <div class="grid grid-cols-2 gap-2 mb-2">
+                <input type="number" id="displayNum" placeholder="ဂဏန်း" readonly class="p-3 text-center text-xl font-black border-2 border-blue-400 rounded-xl">
+                <input type="number" id="displayAmt" placeholder="ငွေပမာဏ" class="p-3 text-center text-xl font-black border-2 border-green-400 rounded-xl">
             </div>
-
-            <div class="grid grid-cols-4 gap-2 text-xl font-bold">
-                <button onclick="numPress('7')" class="bg-white p-4 rounded-xl shadow active:bg-gray-200">7</button>
-                <button onclick="numPress('8')" class="bg-white p-4 rounded-xl shadow active:bg-gray-200">8</button>
-                <button onclick="numPress('9')" class="bg-white p-4 rounded-xl shadow active:bg-gray-200">9</button>
-                <button onclick="runSpecial('R')" class="bg-orange-500 text-white p-4 rounded-xl shadow">R</button>
-
-                <button onclick="numPress('4')" class="bg-white p-4 rounded-xl shadow active:bg-gray-200">4</button>
-                <button onclick="numPress('5')" class="bg-white p-4 rounded-xl shadow active:bg-gray-200">5</button>
-                <button onclick="numPress('6')" class="bg-white p-4 rounded-xl shadow active:bg-gray-200">6</button>
-                <button onclick="runSpecial('အပါ')" class="bg-orange-500 text-white p-4 rounded-xl shadow">ပါ</button>
-
-                <button onclick="numPress('1')" class="bg-white p-4 rounded-xl shadow active:bg-gray-200">1</button>
-                <button onclick="numPress('2')" class="bg-white p-4 rounded-xl shadow active:bg-gray-200">2</button>
-                <button onclick="numPress('3')" class="bg-white p-4 rounded-xl shadow active:bg-gray-200">3</button>
-                <button onclick="addCurrentEntry()" class="bg-green-600 text-white p-4 rounded-xl shadow row-span-2 flex items-center justify-center text-2xl">OK</button>
-
-                <button onclick="numPress('0')" class="bg-white p-4 rounded-xl shadow active:bg-gray-200">0</button>
-                <button onclick="numPress('00')" class="bg-white p-4 rounded-xl shadow active:bg-gray-200">00</button>
-                <button onclick="delPress()" class="bg-red-500 text-white p-4 rounded-xl shadow italic">DEL</button>
+            <div class="grid grid-cols-4 gap-1">
+                <button onclick="numPress('7')" class="bg-white p-3 rounded-lg shadow font-bold">7</button>
+                <button onclick="numPress('8')" class="bg-white p-3 rounded-lg shadow font-bold">8</button>
+                <button onclick="numPress('9')" class="bg-white p-3 rounded-lg shadow font-bold">9</button>
+                <button onclick="runSpecial('R')" class="bg-orange-500 text-white p-3 rounded-lg font-bold">R</button>
+                <button onclick="numPress('4')" class="bg-white p-3 rounded-lg shadow font-bold">4</button>
+                <button onclick="numPress('5')" class="bg-white p-3 rounded-lg shadow font-bold">5</button>
+                <button onclick="numPress('6')" class="bg-white p-3 rounded-lg shadow font-bold">6</button>
+                <button onclick="runSpecial('အပါ')" class="bg-orange-500 text-white p-3 rounded-lg font-bold">ပါ</button>
+                <button onclick="numPress('1')" class="bg-white p-3 rounded-lg shadow font-bold">1</button>
+                <button onclick="numPress('2')" class="bg-white p-3 rounded-lg shadow font-bold">2</button>
+                <button onclick="numPress('3')" class="bg-white p-3 rounded-lg shadow font-bold">3</button>
+                <button onclick="addCurrentEntry()" class="bg-green-600 text-white p-3 rounded-lg row-span-2 font-bold text-xl">OK</button>
+                <button onclick="numPress('0')" class="bg-white p-3 rounded-lg shadow font-bold">0</button>
+                <button onclick="numPress('00')" class="bg-white p-3 rounded-lg shadow font-bold">00</button>
+                <button onclick="delPress()" class="bg-red-500 text-white p-3 rounded-lg italic font-bold">DEL</button>
             </div>
-
-            <div class="grid grid-cols-3 gap-2 mt-2">
-                <button onclick="runSpecial('ထိပ်')" class="bg-slate-700 text-white py-3 rounded-xl font-bold">ထိပ်</button>
-                <button onclick="runSpecial('နောက်')" class="bg-slate-700 text-white py-3 rounded-xl font-bold">နောက်</button>
-                <button onclick="runSpecial('အပူး')" class="bg-slate-700 text-white py-3 rounded-xl font-bold">အပူး</button>
+            <div class="grid grid-cols-3 gap-1 mt-1">
+                <button onclick="runSpecial('ထိပ်')" class="bg-slate-700 text-white py-2 rounded-lg text-sm font-bold">ထိပ်</button>
+                <button onclick="runSpecial('နောက်')" class="bg-slate-700 text-white py-2 rounded-lg text-sm font-bold">နောက်</button>
+                <button onclick="runSpecial('အပူး')" class="bg-slate-700 text-white py-2 rounded-lg text-sm font-bold">အပူး</button>
             </div>
+        </div>
+    </div>
+
+    <div id="winnerPage" class="win-page page-hidden p-6">
+        <div class="flex justify-between items-center mb-6">
+            <h2 class="text-2xl font-bold text-purple-700">ပေါက်သူစာရင်း</h2>
+            <button onclick="closeWinnerPage()" class="text-3xl font-bold">&times;</button>
+        </div>
+        <div class="bg-purple-100 p-4 rounded-2xl mb-4 text-center">
+            <p class="text-sm text-gray-600">ပေါက်ဂဏန်း</p>
+            <h3 id="winNumDisplay" class="text-4xl font-black text-purple-800">-</h3>
+        </div>
+        <div id="winnerListContainer" class="space-y-3">
+            </div>
+        <div class="mt-8">
+            <button onclick="closeWinnerPage()" class="w-full bg-gray-200 py-3 rounded-xl font-bold">ပြန်ထွက်မည်</button>
         </div>
     </div>
 
