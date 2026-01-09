@@ -3,38 +3,237 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>2D Smart Manager</title>
+    <title>KKuser2D Clone</title>
     <style>
-        /* CSS Reset & Base */
         * { box-sizing: border-box; font-family: sans-serif; }
-        body { background-color: #f0f2f5; margin: 0; padding: 0; }
-        .container { max-width: 450px; margin: 0 auto; background: white; min-height: 100vh; display: flex; flex-direction: column; }
-
-        /* Header Section */
-        header { background: #1e293b; color: white; padding: 15px; }
-        .header-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
-        .name-box { display: flex; gap: 5px; margin-bottom: 10px; }
-        .name-box input { flex: 1; padding: 10px; border-radius: 5px; border: none; }
-        .name-box button { background: #3b82f6; color: white; border: none; padding: 0 15px; border-radius: 5px; font-weight: bold; }
-        .tags { display: flex; flex-wrap: wrap; gap: 5px; margin-bottom: 10px; }
-        .tag { background: #475569; padding: 4px 8px; border-radius: 4px; font-size: 11px; display: flex; align-items: center; gap: 5px; }
-        .tag span { color: #f87171; cursor: pointer; font-weight: bold; }
-        select { width: 100%; padding: 10px; border-radius: 5px; font-weight: bold; border: 2px solid #3b82f6; }
-
-        /* Win Section */
-        .win-bar { background: #f3e8ff; padding: 12px; display: flex; gap: 10px; border-bottom: 1px solid #ddd; }
-        #winIn { width: 70px; text-align: center; font-size: 20px; font-weight: bold; border: 2px solid #9333ea; border-radius: 8px; }
-        .btn-win { flex: 1; background: #9333ea; color: white; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; }
-
-        /* --- ပထမဆုံးအကြိမ်ပေးခဲ့သော ဇယားကွက် Design အစစ် --- */
-        .list-container { flex: 1; overflow-y: auto; padding: 0; }
-        table { width: 100%; border-collapse: collapse; }
-        th { background: #f8fafc; color: #64748b; font-size: 12px; padding: 10px; border-bottom: 1px solid #eee; text-align: center; }
+        body { background-color: #f1f1f1; margin: 0; padding: 0; display: flex; justify-content: center; }
+        .app { width: 100%; max-width: 450px; background: #5a5a8a; min-height: 100vh; display: flex; flex-direction: column; }
         
-        /* ဤနေရာသည် အဓိက ပြင်ဆင်ထားသော ဇယားကွက် ပုံစံဖြစ်သည် */
-        td { padding: 15px 5px; border-bottom: 1px solid #f1f1f1; text-align: center; vertical-align: middle; }
-        .td-num { color: #2563eb; font-size: 22px; font-weight: 800; } /* ဂဏန်းအပြာရောင်အကြီး */
-        .td-amt { font-size: 16px; font-weight: bold; color: #334155; } /* ငွေပမာဏ */
+        /* Header Section */
+        header { background: #eeeeee; padding: 10px; border-bottom: 2px solid #ddd; }
+        .row { display: flex; align-items: center; gap: 8px; margin-bottom: 5px; }
+        .label { font-weight: bold; color: #333; min-width: 60px; font-size: 18px; }
+        select { flex: 1; padding: 10px; border-radius: 8px; border: 2px solid #3b82f6; font-size: 16px; background: white; }
+        .btn-admin { background: #3b82f6; color: white; border: none; padding: 10px 15px; border-radius: 5px; font-weight: bold; }
+
+        /* Table Section */
+        .content-area { background: white; flex: 1; margin: 0; display: flex; flex-direction: column; }
+        .table-title { padding: 10px; font-weight: bold; color: #333; font-size: 18px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #ddd; }
+        .badge-count { background: #3b82f6; color: white; border-radius: 50%; width: 25px; height: 25px; display: flex; align-items: center; justify-content: center; font-size: 12px; }
+        
+        table { width: 100%; border-collapse: collapse; }
+        thead th { background: #f8f9fa; color: #555; font-size: 14px; padding: 10px 5px; border-bottom: 1px solid #eee; }
+        tbody td { text-align: center; padding: 12px 5px; border-bottom: 1px solid #f9f9f9; font-weight: bold; font-size: 16px; }
+        .empty-msg { color: #aaa; text-align: center; padding: 50px 0; font-size: 20px; font-style: italic; }
+
+        /* Control Bar */
+        .control-bar { background: #333d52; padding: 10px; display: flex; justify-content: space-between; align-items: center; }
+        .btn-clear { background: #e54d42; color: white; border: none; padding: 8px 15px; border-radius: 5px; font-weight: bold; }
+        .total-val { color: #2ecc71; font-size: 22px; font-weight: bold; }
+        .btn-save { background: #3b82f6; color: white; border: none; padding: 8px 15px; border-radius: 5px; font-weight: bold; }
+
+        .slip-bar { background: #1c2536; color: white; padding: 10px; display: flex; justify-content: space-between; align-items: center; }
+        .badge-slip { background: #d4ac0d; color: #111; padding: 2px 12px; border-radius: 15px; font-weight: bold; }
+
+        /* Keyboard Area */
+        .keyboard-section { background: white; padding: 10px; }
+        .top-btns { display: grid; grid-template-cols: 1fr 1fr; gap: 10px; margin-bottom: 10px; }
+        .btn-blue { background: #3b82f6; color: white; border: none; padding: 12px; border-radius: 8px; font-weight: bold; }
+        .btn-green { background: #2ecc71; color: white; border: none; padding: 12px; border-radius: 8px; font-weight: bold; }
+
+        .input-row { display: grid; grid-template-cols: 1fr 1fr 1fr; gap: 5px; margin-bottom: 10px; }
+        .box { border: 2px solid #3b82f6; border-radius: 8px; padding: 10px; text-align: center; font-weight: bold; background: #f8f9fa; min-height: 45px; }
+
+        .key-grid { display: grid; grid-template-cols: repeat(4, 1fr); gap: 8px; }
+        .key { background: white; border: 2px solid #3b82f6; border-radius: 10px; padding: 15px 0; font-size: 20px; font-weight: bold; color: #333; cursor: pointer; }
+        .key-red { background: #e54d42 !important; color: white !important; border: none; }
+        .key-ok { background: #2ecc71 !important; color: white !important; border: none; grid-row: span 2; }
+        
+        /* Pages */
+        .overlay { position: fixed; inset: 0; background: white; display: none; flex-direction: column; z-index: 100; padding: 20px; }
+        .active { display: flex !important; }
+    </style>
+</head>
+<body>
+
+<div class="app">
+    <header>
+        <div class="row">
+            <span class="label">အမည်:</span>
+            <select id="userSelect">
+                <option>Admin (15/80)</option>
+            </select>
+            <button class="btn-admin" onclick="addUserName()">Admin</button>
+        </div>
+    </header>
+
+    <div class="content-area">
+        <div class="table-title">
+            <span>လောင်းကြေးများ</span>
+            <span class="badge-count" id="countBadge">0</span>
+        </div>
+        <div style="flex: 1; overflow-y: auto;">
+            <table>
+                <thead>
+                    <tr>
+                        <th>ဂဏန်း</th>
+                        <th>ငွေပမာဏ</th>
+                        <th>အမျိုးအစား</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody id="betTable">
+                    </tbody>
+            </table>
+            <div id="emptyMsg" class="empty-msg">လောင်းကြေးမရှိသေးပါ</div>
+        </div>
+    </div>
+
+    <div class="control-bar">
+        <button class="btn-clear" onclick="clearAll()">Clear All</button>
+        <div class="total-val" id="totalAmt">0</div>
+        <button class="btn-save" onclick="saveToHistory()">Save</button>
+    </div>
+
+    <div class="slip-bar">
+        <span>စုစုပေါင်း Slip:</span>
+        <span class="badge-slip">1</span>
+    </div>
+
+    <div class="keyboard-section">
+        <div class="top-btns">
+            <button class="btn-blue">CopyPaste</button>
+            <button class="btn-green">UnitKeyboard</button>
+        </div>
+        <div class="input-row">
+            <div class="box" id="numDisplay" style="color:#3b82f6; font-size:20px;">ဂဏန်း</div>
+            <input type="number" id="amtInput" class="box" placeholder="ငွေ">
+            <div class="box" style="color:#555;">ယုနစ်</div>
+        </div>
+        <div class="key-grid">
+            <button class="key" onclick="press('7')">7</button>
+            <button class="key" onclick="press('8')">8</button>
+            <button class="key" onclick="press('9')">9</button>
+            <button class="key key-red" onclick="sp('R')">R</button>
+            
+            <button class="key" onclick="press('4')">4</button>
+            <button class="key" onclick="press('5')">5</button>
+            <button class="key" onclick="press('6')">6</button>
+            <button class="key key-red" onclick="sp('ပါ')">အပါ</button>
+            
+            <button class="key" onclick="press('1')">1</button>
+            <button class="key" onclick="press('2')">2</button>
+            <button class="key" onclick="press('3')">3</button>
+            <button class="key key-ok" onclick="submitBet()">OK</button>
+            
+            <button class="key" onclick="press('0')">0</button>
+            <button class="key" onclick="press('00')">00</button>
+            <button class="key key-red" onclick="backspace()">DEL</button>
+        </div>
+    </div>
+</div>
+
+<script>
+    let bets = [];
+    let currentNum = "";
+
+    function press(v) {
+        if (v === '00') currentNum = "00";
+        else if (currentNum.length >= 2) currentNum = v;
+        else currentNum += v;
+        updateView();
+    }
+
+    function backspace() {
+        currentNum = "";
+        updateView();
+    }
+
+    function updateView() {
+        document.getElementById('numDisplay').innerText = currentNum || "ဂဏန်း";
+    }
+
+    function submitBet() {
+        let amt = document.getElementById('amtInput').value;
+        if (!currentNum || !amt) return;
+        
+        bets.push({
+            num: currentNum.padStart(2, '0'),
+            amt: parseInt(amt),
+            type: "ပုံမှန်"
+        });
+        
+        currentNum = "";
+        renderTable();
+        updateView();
+    }
+
+    function sp(mode) {
+        let amt = document.getElementById('amtInput').value;
+        if (!amt) return alert("ငွေပမာဏအရင်ထည့်ပါ");
+        
+        if (mode === 'R') {
+            if (currentNum.length < 2) return;
+            let r = currentNum.split('').reverse().join('');
+            bets.push({ num: currentNum, amt: parseInt(amt), type: "R" });
+            if (currentNum !== r) bets.push({ num: r, amt: parseInt(amt), type: "R" });
+        } else if (mode === 'ပါ') {
+            for(let i=0; i<=9; i++) {
+                bets.push({ num: currentNum+i, amt: parseInt(amt), type: "အပါ" });
+                if(currentNum!=i) bets.push({ num: i+currentNum, amt: parseInt(amt), type: "အပါ" });
+            }
+        }
+        currentNum = "";
+        renderTable();
+        updateView();
+    }
+
+    function renderTable() {
+        const tbody = document.getElementById('betTable');
+        const empty = document.getElementById('emptyMsg');
+        tbody.innerHTML = "";
+        
+        if (bets.length > 0) empty.style.display = "none";
+        else empty.style.display = "block";
+
+        let total = 0;
+        bets.forEach((b, idx) => {
+            total += b.amt;
+            tbody.innerHTML += `
+                <tr>
+                    <td>${b.num}</td>
+                    <td>${b.amt}</td>
+                    <td style="color:#e54d42">${b.type}</td>
+                    <td><button onclick="removeBet(${idx})" style="border:none; background:none; color:red; font-size:20px;">&times;</button></td>
+                </tr>
+            `;
+        });
+        
+        document.getElementById('totalAmt').innerText = total;
+        document.getElementById('countBadge').innerText = bets.length;
+    }
+
+    function removeBet(idx) {
+        bets.splice(idx, 1);
+        renderTable();
+    }
+
+    function clearAll() {
+        if(confirm("အားလုံးဖျက်မှာလား?")) {
+            bets = [];
+            renderTable();
+        }
+    }
+
+    function saveToHistory() {
+        alert("သိမ်းဆည်းပြီးပါပြီ");
+        bets = [];
+        renderTable();
+    }
+</script>
+
+</body>
+</html>        .td-amt { font-size: 16px; font-weight: bold; color: #334155; } /* ငွေပမာဏ */
         .td-name { font-size: 11px; color: #f97316; font-weight: bold; text-transform: uppercase; } /* နာမည်လိမ္မော်ရောင်အသေး */
         
         .btn-del { color: #ef4444; border: 1px solid #fee2e2; background: #fee2e2; border-radius: 50%; width: 25px; height: 25px; cursor: pointer; font-weight: bold; }
