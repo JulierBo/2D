@@ -3,79 +3,77 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>KKuser2D - Full UI</title>
+    <title>KKuser2D - Myanmar</title>
     <style>
         * { box-sizing: border-box; font-family: sans-serif; }
-        body { background-color: #888; margin: 0; padding: 0; display: flex; justify-content: center; }
+        body { background-color: #777; margin: 0; padding: 0; display: flex; justify-content: center; }
         
-        /* Main Container */
-        .app-shell { width: 100%; max-width: 450px; background: #4a4a7a; min-height: 100vh; display: flex; flex-direction: column; position: relative; }
+        .app-container { width: 100%; max-width: 450px; background: #515183; min-height: 100vh; display: flex; flex-direction: column; position: relative; border: 1px solid #333; }
 
-        /* Top Header - Admin Bar */
-        header { background: #dfdfdf; padding: 10px; border-bottom: 2px solid #bbb; }
-        .admin-row { display: flex; align-items: center; gap: 8px; }
-        .label-text { font-weight: bold; font-size: 20px; color: #333; }
-        select { flex: 1; padding: 12px; border: 2px solid #3498db; border-radius: 8px; font-size: 16px; background: white; }
-        .admin-btn { background: #3498db; color: white; border: none; padding: 12px 18px; border-radius: 6px; font-weight: bold; cursor: pointer; }
+        /* Top Bar - အမည်ရွေးချယ်မှု */
+        .top-admin-bar { background: #eeeeee; padding: 12px; display: flex; align-items: center; gap: 8px; border-bottom: 2px solid #ccc; }
+        .label-name { font-weight: bold; font-size: 20px; color: #333; }
+        .name-select { flex: 1; padding: 12px; border: 2px solid #3498db; border-radius: 8px; font-size: 16px; background: white; font-weight: bold; }
+        .btn-admin-top { background: #3498db; color: white; border: none; padding: 12px 18px; border-radius: 6px; font-weight: bold; cursor: pointer; }
 
-        /* Betting List Title */
-        .list-header { background: white; border-top: 15px solid #4a4a7a; padding: 12px 15px; display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #3498db; }
-        .title-txt { font-weight: bold; font-size: 20px; color: #333; }
-        .count-badge { background: #3498db; color: white; border-radius: 50%; width: 28px; height: 28px; display: flex; align-items: center; justify-content: center; font-size: 14px; font-weight: bold; }
+        /* လောင်းကြေးများ ခေါင်းစဉ် */
+        .table-title-bar { background: white; margin-top: 15px; padding: 12px 15px; display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #3498db; }
+        .title-text { font-weight: bold; font-size: 20px; color: #333; }
+        .count-circle { background: #3498db; color: white; border-radius: 50%; width: 28px; height: 28px; display: flex; align-items: center; justify-content: center; font-size: 14px; font-weight: bold; }
 
-        /* Table Area - ဇယားကွက် */
-        .table-container { background: white; flex: 1; overflow-y: auto; min-height: 200px; }
+        /* ဇယားကွက်အပိုင်း */
+        .table-section { background: white; flex: 1; overflow-y: auto; min-height: 250px; }
         table { width: 100%; border-collapse: collapse; }
-        thead th { background: #f5f5f5; color: #444; font-size: 15px; padding: 12px 5px; border: 1px solid #ddd; }
-        tbody td { text-align: center; padding: 12px 5px; border: 1px solid #eee; font-weight: bold; font-size: 18px; color: #333; }
-        .empty-status { color: #ccc; text-align: center; padding: 40px 0; font-size: 22px; font-style: italic; letter-spacing: 1px; }
+        thead th { background: #f8f8f8; color: #555; font-size: 15px; padding: 12px 5px; border: 1px solid #ddd; position: sticky; top: 0; }
+        tbody td { text-align: center; padding: 14px 5px; border: 1px solid #eee; font-weight: bold; font-size: 18px; color: #333; }
+        .empty-text { color: #bbb; text-align: center; padding: 60px 0; font-size: 24px; font-style: italic; }
 
-        /* Middle Control Bar */
-        .control-bar { background: #2c3e50; padding: 12px 15px; display: flex; justify-content: space-between; align-items: center; }
-        .clear-btn { background: #e74c3c; color: white; border: none; padding: 10px 18px; border-radius: 6px; font-weight: bold; font-size: 16px; }
-        .total-amount { color: #27ae60; font-size: 26px; font-weight: bold; }
-        .save-btn { background: #3498db; color: white; border: none; padding: 10px 18px; border-radius: 6px; font-weight: bold; font-size: 16px; }
+        /* Total & Clear All Bar */
+        .status-bar { background: #343d52; padding: 15px; display: flex; justify-content: space-between; align-items: center; }
+        .btn-clear { background: #e74c3c; color: white; border: none; padding: 10px 20px; border-radius: 6px; font-weight: bold; font-size: 16px; cursor: pointer; }
+        .total-display { color: #2ecc71; font-size: 28px; font-weight: bold; }
+        .btn-save { background: #3498db; color: white; border: none; padding: 10px 20px; border-radius: 6px; font-weight: bold; font-size: 16px; cursor: pointer; }
 
-        /* Slip Bar */
-        .slip-bar { background: #1a2533; color: white; padding: 12px 15px; display: flex; justify-content: space-between; align-items: center; }
-        .slip-val { background: #f1c40f; color: black; padding: 2px 12px; border-radius: 12px; font-weight: bold; font-size: 18px; }
+        /* Slip Counter Bar */
+        .slip-row { background: #1c2635; color: white; padding: 12px 15px; display: flex; justify-content: space-between; align-items: center; border-top: 1px solid #444; }
+        .slip-badge { background: #f1c40f; color: black; padding: 3px 15px; border-radius: 15px; font-weight: bold; font-size: 18px; }
 
-        /* Keyboard Section */
-        .keyboard-area { background: white; padding: 15px; border-top: 1px solid #ddd; }
-        .kb-top-row { display: grid; grid-template-cols: 1fr 1fr; gap: 10px; margin-bottom: 15px; }
-        .mode-btn { padding: 14px; border: none; border-radius: 8px; color: white; font-weight: bold; font-size: 16px; }
+        /* Keypad Area */
+        .keyboard-panel { background: white; padding: 15px; border-top: 1px solid #ddd; }
+        .btn-group { display: grid; grid-template-cols: 1fr 1fr; gap: 10px; margin-bottom: 15px; }
+        .top-btn { padding: 14px; border: none; border-radius: 8px; color: white; font-weight: bold; font-size: 16px; cursor: pointer; }
+        
+        /* Input Area */
+        .input-display-row { display: grid; grid-template-cols: 1.2fr 1fr 1.2fr; gap: 10px; margin-bottom: 15px; }
+        .box-view { border: 2px solid #3498db; border-radius: 8px; padding: 14px; text-align: center; font-weight: bold; font-size: 20px; background: #f9f9f9; color: #3498db; min-height: 55px; }
+        .input-amt { border: 2px solid #ddd; border-radius: 8px; padding: 14px; text-align: center; font-size: 20px; font-weight: bold; width: 100%; outline: none; }
 
-        .input-display-row { display: grid; grid-template-cols: 1.2fr 1fr 1.2fr; gap: 8px; margin-bottom: 15px; }
-        .display-box { border: 2px solid #3498db; border-radius: 8px; padding: 14px; text-align: center; font-weight: bold; font-size: 20px; background: #f8f9fa; color: #3498db; }
-        .amt-input { border: 2px solid #ddd; border-radius: 8px; padding: 14px; text-align: center; font-size: 20px; font-weight: bold; width: 100%; outline: none; }
-
+        /* Numbers Grid */
         .key-grid { display: grid; grid-template-cols: repeat(4, 1fr); gap: 10px; }
-        .key { background: white; border: 2px solid #3498db; border-radius: 10px; padding: 20px 0; font-size: 22px; font-weight: bold; color: #333; cursor: pointer; transition: 0.1s; }
+        .key { background: white; border: 2px solid #3498db; border-radius: 10px; padding: 22px 0; font-size: 24px; font-weight: bold; color: #333; cursor: pointer; outline: none; }
         .key:active { background: #3498db; color: white; }
-        .k-red { background: #e74c3c; color: white; border: none; }
-        .k-green { background: #2ecc71; color: white; border: none; grid-row: span 2; display: flex; align-items: center; justify-content: center; font-size: 24px; }
+        .red-key { background: #e74c3c; color: white; border: none; }
+        .green-key { background: #2ecc71; color: white; border: none; grid-row: span 2; display: flex; align-items: center; justify-content: center; font-size: 26px; }
     </style>
 </head>
 <body>
 
-<div class="app-shell">
-    <header>
-        <div class="admin-row">
-            <span class="label-text">အမည်:</span>
-            <select id="userSelector">
-                <option>Admin (15/80)</option>
-            </select>
-            <button class="admin-btn">Admin</button>
-        </div>
+<div class="app-container">
+    <header class="top-admin-bar">
+        <span class="label-name">အမည်:</span>
+        <select class="name-select">
+            <option>Admin (15/80)</option>
+        </select>
+        <button class="btn-admin-top">Admin</button>
     </header>
 
-    <div class="list-header">
-        <span class="title-txt">လောင်းကြေးများ</span>
-        <span class="count-badge" id="countBadge">0</span>
+    <div class="table-title-bar">
+        <span class="title-text">လောင်းကြေးများ</span>
+        <span class="count-circle" id="totalCount">0</span>
     </div>
     
-    <div class="table-container">
-        <table id="mainTable" style="display: none;">
+    <div class="table-section">
+        <table id="betTable" style="display: none;">
             <thead>
                 <tr>
                     <th width="25%">ဂဏန်း</th>
@@ -84,164 +82,161 @@
                     <th width="15%">Action</th>
                 </tr>
             </thead>
-            <tbody id="betListBody"></tbody>
+            <tbody id="betBody"></tbody>
         </table>
-        <div id="emptyMsg" class="empty-status">လောင်းကြေးမရှိသေးပါ</div>
+        <div id="noDataMsg" class="empty-text">လောင်းကြေးမရှိသေးပါ</div>
     </div>
 
-    <div class="control-bar">
-        <button class="clear-btn" onclick="clearAll()">Clear All</button>
-        <div class="total-amount" id="totalValue">0</div>
-        <button class="save-btn" onclick="saveData()">Save</button>
+    <div class="status-bar">
+        <button class="btn-clear" onclick="clearList()">Clear All</button>
+        <div class="total-display" id="totalAmount">0</div>
+        <button class="btn-save" onclick="saveBets()">Save</button>
     </div>
 
-    <div class="slip-bar">
+    <div class="slip-row">
         <span>စုစုပေါင်း Slip:</span>
-        <span class="slip-val">1</span>
+        <span class="slip-badge">1</span>
     </div>
 
-    <div class="keyboard-area">
-        <div class="kb-top-row">
-            <button class="mode-btn" style="background:#3498db;">CopyPaste</button>
-            <button class="mode-btn" style="background:#2ecc71;">UnitKeyboard</button>
+    <div class="keyboard-panel">
+        <div class="btn-group">
+            <button class="top-btn" style="background:#3498db;">CopyPaste</button>
+            <button class="top-btn" style="background:#2ecc71;">UnitKeyboard</button>
         </div>
         
         <div class="input-display-row">
-            <div class="display-box" id="numDisplay">ဂဏန်း</div>
-            <input type="number" id="amtInput" class="amt-input" placeholder="">
-            <div class="display-box" style="color:#999;">ယုနစ်</div>
+            <div class="box-view" id="numView">ဂဏန်း</div>
+            <input type="number" id="amtInput" class="input-amt" placeholder="" onfocus="this.placeholder=''" onblur="this.placeholder=''">
+            <div class="box-view" style="color:#999;">ယုနစ်</div>
         </div>
 
         <div class="key-grid">
-            <button class="key" onclick="press('7')">7</button>
-            <button class="key" onclick="press('8')">8</button>
-            <button class="key" onclick="press('9')">9</button>
-            <button class="key k-red" onclick="action('R')">R</button>
+            <button class="key" onclick="append('7')">7</button>
+            <button class="key" onclick="append('8')">8</button>
+            <button class="key" onclick="append('9')">9</button>
+            <button class="key red-key" onclick="special('R')">R</button>
             
-            <button class="key" onclick="press('4')">4</button>
-            <button class="key" onclick="press('5')">5</button>
-            <button class="key" onclick="press('6')">6</button>
-            <button class="key k-red" onclick="action('ပါ')">အပါ</button>
+            <button class="key" onclick="append('4')">4</button>
+            <button class="key" onclick="append('5')">5</button>
+            <button class="key" onclick="append('6')">6</button>
+            <button class="key red-key" onclick="special('ပါ')">အပါ</button>
             
-            <button class="key" onclick="press('1')">1</button>
-            <button class="key" onclick="press('2')">2</button>
-            <button class="key" onclick="press('3')">3</button>
-            <button class="key k-green" onclick="addBet()">OK</button>
+            <button class="key" onclick="append('1')">1</button>
+            <button class="key" onclick="append('2')">2</button>
+            <button class="key" onclick="append('3')">3</button>
+            <button class="key green-key" onclick="addEntry()">OK</button>
             
-            <button class="key" onclick="press('0')">0</button>
-            <button class="key" onclick="press('00')">00</button>
-            <button class="key k-red" onclick="del()">DEL</button>
+            <button class="key" onclick="append('0')">0</button>
+            <button class="key" onclick="append('00')">00</button>
+            <button class="key red-key" onclick="delChar()">DEL</button>
         </div>
     </div>
 </div>
 
 <script>
-    let bets = [];
-    let currentNum = "";
+    let betList = [];
+    let curNum = "";
 
-    function press(v) {
-        if(v === '00') currentNum = "00";
-        else if(currentNum.length >= 2) currentNum = v;
-        else currentNum += v;
-        updateDisplay();
+    function append(val) {
+        if(val === '00') curNum = "00";
+        else if(curNum.length >= 2) curNum = val;
+        else curNum += val;
+        document.getElementById('numView').innerText = curNum;
     }
 
-    function del() {
-        currentNum = "";
-        updateDisplay();
+    function delChar() {
+        curNum = "";
+        document.getElementById('numView').innerText = "ဂဏန်း";
     }
 
-    function updateDisplay() {
-        document.getElementById('numDisplay').innerText = currentNum || "ဂဏန်း";
-    }
-
-    function addBet() {
+    function addEntry() {
         let amt = document.getElementById('amtInput').value;
-        if(!currentNum || !amt) return;
+        if(!curNum || !amt) return;
         
-        bets.push({
-            n: currentNum.padStart(2, '0'),
-            a: parseInt(amt),
-            t: "ပုံမှန်"
+        betList.push({
+            num: curNum.padStart(2, '0'),
+            amt: parseInt(amt),
+            type: "ပုံမှန်"
         });
         
-        resetInputs();
-        render();
+        resetInput();
+        updateTable();
     }
 
-    function action(type) {
+    function special(mode) {
         let amt = document.getElementById('amtInput').value;
         if(!amt) return alert("ငွေပမာဏ အရင်ထည့်ပါ");
         
-        if(type === 'R') {
-            if(currentNum.length < 2) return;
-            let rev = currentNum.split('').reverse().join('');
-            bets.push({ n: currentNum, a: parseInt(amt), t: "R" });
-            if(currentNum !== rev) bets.push({ n: rev, a: parseInt(amt), t: "R" });
-        } else if(type === 'ပါ') {
-            if(!currentNum) return;
+        if(mode === 'R') {
+            if(curNum.length < 2) return;
+            let rev = curNum.split('').reverse().join('');
+            betList.push({ num: curNum, amt: parseInt(amt), type: "R" });
+            if(curNum !== rev) betList.push({ num: rev, amt: parseInt(amt), type: "R" });
+        } else if(mode === 'ပါ') {
+            if(!curNum) return;
             for(let i=0; i<=9; i++) {
-                bets.push({ n: currentNum+i, a: parseInt(amt), t: "အပါ" });
-                if(currentNum != i) bets.push({ n: i+currentNum, a: parseInt(amt), t: "အပါ" });
+                betList.push({ num: curNum+i, amt: parseInt(amt), type: "အပါ" });
+                if(curNum != i) betList.push({ num: i+curNum, amt: parseInt(amt), type: "အပါ" });
             }
         }
-        resetInputs();
-        render();
+        resetInput();
+        updateTable();
     }
 
-    function resetInputs() {
-        currentNum = "";
+    function resetInput() {
+        curNum = "";
         document.getElementById('amtInput').value = "";
-        updateDisplay();
+        document.getElementById('numView').innerText = "ဂဏန်း";
     }
 
-    function render() {
-        const tbody = document.getElementById('betListBody');
-        const empty = document.getElementById('emptyMsg');
-        const table = document.getElementById('mainTable');
+    function updateTable() {
+        const tbody = document.getElementById('betBody');
+        const emptyMsg = document.getElementById('noDataMsg');
+        const table = document.getElementById('betTable');
         
         tbody.innerHTML = "";
-        if(bets.length > 0) {
-            empty.style.display = "none";
+        if(betList.length > 0) {
+            emptyMsg.style.display = "none";
             table.style.display = "table";
         } else {
-            empty.style.display = "block";
+            emptyMsg.style.display = "block";
             table.style.display = "none";
         }
 
         let total = 0;
-        bets.forEach((b, idx) => {
-            total += b.a;
+        betList.forEach((item, index) => {
+            total += item.amt;
             tbody.innerHTML += `
                 <tr>
-                    <td>${b.n}</td>
-                    <td>${b.a}</td>
-                    <td style="color:#e74c3c">${b.t}</td>
-                    <td><button onclick="removeBet(${idx})" style="border:none; background:none; color:#e74c3c; font-size:22px; cursor:pointer;">&times;</button></td>
+                    <td>${item.num}</td>
+                    <td>${item.amt.toLocaleString()}</td>
+                    <td style="color:#e74c3c">${item.type}</td>
+                    <td><button onclick="removeItem(${index})" style="border:none; background:none; color:#e74c3c; font-size:24px; cursor:pointer;">&times;</button></td>
                 </tr>
             `;
         });
         
-        document.getElementById('totalValue').innerText = total;
-        document.getElementById('countBadge').innerText = bets.length;
+        document.getElementById('totalAmount').innerText = total.toLocaleString();
+        document.getElementById('totalCount').innerText = betList.length;
     }
 
-    function removeBet(idx) {
-        bets.splice(idx, 1);
-        render();
+    function removeItem(index) {
+        betList.splice(index, 1);
+        updateTable();
     }
 
-    function clearAll() {
+    function clearList() {
         if(confirm("လောင်းကြေးအားလုံးကို ဖျက်မှာလား?")) {
-            bets = [];
-            render();
+            betList = [];
+            updateTable();
         }
     }
 
-    function saveData() {
-        alert("ဒေတာများ သိမ်းဆည်းပြီးပါပြီ");
-        bets = [];
-        render();
+    function saveBets() {
+        if(betList.length === 0) return;
+        alert("သိမ်းဆည်းပြီးပါပြီ");
+        betList = [];
+        updateTable();
     }
 </script>
 
