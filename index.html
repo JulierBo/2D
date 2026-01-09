@@ -5,36 +5,226 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>2D Pro Manager</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
-        .page-hidden { display: none; }
-        .win-page { position: fixed; inset: 0; background: white; z-index: 50; overflow-y: auto; }
+        .win-page { position: fixed; inset: 0; background: white; z-index: 100; display: none; }
+        .win-page.active { display: block; }
+        button:active { transform: scale(0.95); }
     </style>
 </head>
-<body class="bg-gray-200 p-2">
-    <div id="mainPage" class="max-w-md mx-auto bg-white rounded-3xl shadow-2xl overflow-hidden flex flex-col min-h-screen">
+<body class="bg-gray-200">
+
+    <div class="max-w-md mx-auto bg-white min-h-screen flex flex-col shadow-xl">
         
         <div class="p-4 bg-slate-800 text-white">
             <div class="flex gap-2 mb-3">
-                <input type="text" id="newNameInput" placeholder="နာမည်အသစ်" class="flex-1 p-2 rounded text-black text-sm">
-                <button onclick="addNewName()" class="bg-blue-500 px-3 py-1 rounded text-sm font-bold">ပေါင်းထည့်</button>
+                <input type="text" id="newNameInput" placeholder="နာမည်အသစ်" class="flex-1 p-2 rounded text-black outline-none">
+                <button onclick="addNewName()" class="bg-blue-500 px-4 py-2 rounded font-bold">ပေါင်းထည့်</button>
             </div>
-            <div id="nameListContainer" class="flex flex-wrap gap-2 max-h-24 overflow-y-auto mb-2 p-2 bg-slate-700 rounded">
-                </div>
-            <select id="nameSelector" class="w-full p-2 rounded text-black font-bold text-sm bg-white border-2 border-blue-400"></select>
+            <div id="nameTags" class="flex flex-wrap gap-2 mb-3 overflow-y-auto max-h-20"></div>
+            <select id="nameSelector" class="w-full p-2 rounded text-black font-bold bg-white border-2 border-blue-400"></select>
         </div>
 
-        <div class="p-3 bg-purple-100 flex gap-2">
-            <input type="number" id="winningNumInput" placeholder="ပေါက်" class="w-20 p-2 rounded border-2 border-purple-400 text-center font-bold">
+        <div class="p-3 bg-purple-100 flex gap-2 border-b border-purple-200">
+            <input type="number" id="winNumInput" placeholder="ပေါက်" class="w-20 p-2 rounded border-2 border-purple-400 text-center font-bold">
             <button onclick="checkWinner()" class="flex-1 bg-purple-600 text-white py-2 rounded font-bold">ပေါက်ဂဏန်းစစ်မည်</button>
         </div>
 
-        <div class="flex-1 overflow-y-auto p-2">
-            <table class="w-full text-sm">
+        <div class="flex-1 overflow-y-auto p-2" style="max-height: 300px;">
+            <table class="w-full text-sm border-collapse">
                 <thead class="bg-gray-100 sticky top-0">
                     <tr class="border-b">
                         <th class="p-2">ဂဏန်း</th>
                         <th>ငွေ</th>
+                        <th>အမည်</th>
+                        <th>-</th>
+                    </tr>
+                </thead>
+                <tbody id="tableBody" class="text-center font-bold text-gray-700"></tbody>
+            </table>
+        </div>
+
+        <div class="p-3 bg-slate-100 border-t flex justify-between items-center">
+            <span class="text-gray-500 font-bold">Total:</span>
+            <span id="totalDisplay" class="text-2xl font-black text-red-600">0</span>
+        </div>
+
+        <div class="bg-gray-50 p-3 border-t">
+            <div class="grid grid-cols-2 gap-2 mb-2">
+                <input type="number" id="numIn" placeholder="ဂဏန်း" readonly class="p-3 text-center text-xl font-bold border-2 border-blue-400 rounded-xl bg-white">
+                <input type="number" id="amtIn" placeholder="ငွေပမာဏ" class="p-3 text-center text-xl font-bold border-2 border-green-400 rounded-xl">
+            </div>
+            <div class="grid grid-cols-4 gap-1">
+                <button onclick="press('7')" class="bg-white p-4 rounded shadow font-bold">7</button>
+                <button onclick="press('8')" class="bg-white p-4 rounded shadow font-bold">8</button>
+                <button onclick="press('9')" class="bg-white p-4 rounded shadow font-bold">9</button>
+                <button onclick="run('R')" class="bg-orange-500 text-white p-4 rounded font-bold">R</button>
+                <button onclick="press('4')" class="bg-white p-4 rounded shadow font-bold">4</button>
+                <button onclick="press('5')" class="bg-white p-4 rounded shadow font-bold">5</button>
+                <button onclick="press('6')" class="bg-white p-4 rounded shadow font-bold">6</button>
+                <button onclick="run('အပါ')" class="bg-orange-500 text-white p-4 rounded font-bold text-xs">အပါ</button>
+                <button onclick="press('1')" class="bg-white p-4 rounded shadow font-bold">1</button>
+                <button onclick="press('2')" class="bg-white p-4 rounded shadow font-bold">2</button>
+                <button onclick="press('3')" class="bg-white p-4 rounded shadow font-bold">3</button>
+                <button onclick="addOk()" class="bg-green-600 text-white p-4 rounded row-span-2 font-bold text-xl">OK</button>
+                <button onclick="press('0')" class="bg-white p-4 rounded shadow font-bold">0</button>
+                <button onclick="press('00')" class="bg-white p-4 rounded shadow font-bold">00</button>
+                <button onclick="del()" class="bg-red-500 text-white p-4 rounded italic font-bold">DEL</button>
+            </div>
+            <div class="grid grid-cols-3 gap-1 mt-1">
+                <button onclick="run('ထိပ်')" class="bg-slate-700 text-white py-3 rounded font-bold text-sm">ထိပ်</button>
+                <button onclick="run('နောက်')" class="bg-slate-700 text-white py-3 rounded font-bold text-sm">နောက်</button>
+                <button onclick="run('အပူး')" class="bg-slate-700 text-white py-3 rounded font-bold text-sm">အပူး</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="winPage" class="win-page p-6">
+        <div class="flex justify-between items-center mb-6">
+            <h2 class="text-2xl font-bold text-purple-700">ပေါက်သူစာရင်း</h2>
+            <button onclick="document.getElementById('winPage').classList.remove('active')" class="text-4xl">&times;</button>
+        </div>
+        <div id="winResult" class="space-y-3"></div>
+        <button onclick="document.getElementById('winPage').classList.remove('active')" class="w-full bg-gray-200 py-3 mt-10 rounded font-bold">ပိတ်မည်</button>
+    </div>
+
+    <script>
+        let records = JSON.parse(localStorage.getItem('2D_REC')) || [];
+        let names = JSON.parse(localStorage.getItem('2D_NAMES')) || ["Admin"];
+
+        window.onload = function() {
+            renderNames();
+            renderUI();
+        };
+
+        // Keyboard Logic
+        function press(v) {
+            let n = document.getElementById('numIn');
+            if (v === '00') { n.value = '00'; return; }
+            if (n.value.length >= 2) n.value = v;
+            else n.value += v;
+        }
+        function del() { document.getElementById('numIn').value = ''; }
+
+        // Name Logic
+        function addNewName() {
+            let val = document.getElementById('newNameInput').value.trim();
+            if (val && !names.includes(val)) {
+                names.push(val);
+                localStorage.setItem('2D_NAMES', JSON.stringify(names));
+                renderNames();
+                document.getElementById('newNameInput').value = '';
+            }
+        }
+        function deleteName(n) {
+            if (n === "Admin") return;
+            names = names.filter(i => i !== n);
+            localStorage.setItem('2D_NAMES', JSON.stringify(names));
+            renderNames();
+        }
+        function renderNames() {
+            const sel = document.getElementById('nameSelector');
+            const tags = document.getElementById('nameTags');
+            sel.innerHTML = ''; tags.innerHTML = '';
+            names.forEach(n => {
+                sel.innerHTML += `<option value="${n}">${n}</option>`;
+                tags.innerHTML += `<div class="bg-slate-600 px-2 py-1 rounded text-xs flex gap-2">
+                    ${n} <span onclick="deleteName('${n}')" class="text-red-400 cursor-pointer">×</span>
+                </div>`;
+            });
+        }
+
+        // Add Data
+        function addOk() {
+            let n = document.getElementById('numIn').value;
+            let a = document.getElementById('amtIn').value;
+            let name = document.getElementById('nameSelector').value;
+            if (!n || !a) return;
+            records.push({ id: Date.now(), num: n.padStart(2, '0'), amt: parseInt(a), name: name });
+            save();
+            document.getElementById('numIn').value = '';
+        }
+
+        function run(type) {
+            let n = document.getElementById('numIn').value;
+            let a = document.getElementById('amtIn').value;
+            let name = document.getElementById('nameSelector').value;
+            if (!a) return alert("ငွေပမာဏထည့်ပါ");
+
+            if (type === 'R') {
+                if (n.length < 2) return;
+                let r = n.split('').reverse().join('');
+                records.push({ id: Date.now(), num: n, amt: parseInt(a), name: name });
+                if (n !== r) records.push({ id: Date.now()+1, num: r, amt: parseInt(a), name: name });
+            } else if (type === 'အပါ') {
+                if (!n) return;
+                for(let i=0; i<=9; i++) {
+                    records.push({ id: Date.now()+i, num: n+i, amt: parseInt(a), name: name });
+                    if(n!=i) records.push({ id: Date.now()+i+20, num: i+n, amt: parseInt(a), name: name });
+                }
+            } else if (type === 'ထိပ်') {
+                for(let i=0; i<=9; i++) records.push({ id: Date.now()+i, num: n+i, amt: parseInt(a), name: name });
+            } else if (type === 'နောက်') {
+                for(let i=0; i<=9; i++) records.push({ id: Date.now()+i, num: i+n, amt: parseInt(a), name: name });
+            } else if (type === 'အပူး') {
+                ['00','11','22','33','44','55','66','77','88','99'].forEach((p, i) => {
+                    records.push({ id: Date.now()+i, num: p, amt: parseInt(a), name: name });
+                });
+            }
+            save();
+            document.getElementById('numIn').value = '';
+        }
+
+        function save() {
+            localStorage.setItem('2D_REC', JSON.stringify(records));
+            renderUI();
+        }
+
+        function renderUI() {
+            const tbody = document.getElementById('tableBody');
+            tbody.innerHTML = '';
+            let total = 0;
+            records.slice().reverse().forEach(r => {
+                total += r.amt;
+                tbody.innerHTML += `<tr class="border-b">
+                    <td class="p-3 text-blue-600">${r.num}</td>
+                    <td>${r.amt.toLocaleString()}</td>
+                    <td class="text-orange-600 text-xs">${r.name}</td>
+                    <td><button onclick="delRec(${r.id})" class="text-red-500">×</button></td>
+                </tr>`;
+            });
+            document.getElementById('totalDisplay').innerText = total.toLocaleString();
+        }
+
+        function delRec(id) {
+            records = records.filter(r => r.id !== id);
+            save();
+        }
+
+        // Winner Check
+        function checkWinner() {
+            let win = document.getElementById('winNumInput').value;
+            if (!win) return alert("ပေါက်ဂဏန်းထည့်ပါ");
+            win = win.padStart(2, '0');
+            let r = win.split('').reverse().join('');
+            let winners = records.filter(i => i.num === win || i.num === r);
+            
+            const res = document.getElementById('winResult');
+            res.innerHTML = `<div class="bg-purple-100 p-4 rounded text-center mb-4">
+                <p>ပေါက်ဂဏန်း</p><h1 class="text-4xl font-black">${win}</h1>
+            </div>`;
+
+            if (winners.length === 0) res.innerHTML += '<p class="text-center text-gray-400 italic">ပေါက်သူမရှိပါ</p>';
+            else winners.forEach(w => {
+                res.innerHTML += `<div class="p-4 bg-white shadow rounded border-l-4 border-green-500 flex justify-between">
+                    <div><b>${w.name}</b><br><small>ဂဏန်း: ${w.num}</small></div>
+                    <div class="text-xl font-bold text-green-600">${w.amt.toLocaleString()}</div>
+                </div>`;
+            });
+            document.getElementById('winPage').classList.add('active');
+        }
+    </script>
+</body>
+</html>                        <th>ငွေ</th>
                         <th>အမည်</th>
                         <th>-</th>
                     </tr>
