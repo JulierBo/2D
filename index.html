@@ -3,510 +3,150 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>2D Pro Manager</title>
-    <script src="https://cdn.tailwindcss.com"></script>
+    <title>2D Pro Manager - V3</title>
     <style>
-        .page-overlay { position: fixed; inset: 0; background: white; z-index: 50; display: none; overflow-y: auto; }
-        .active { display: block !important; }
-        button:active { transform: scale(0.95); opacity: 0.8; }
-    </style>
-</head>
-<body class="bg-gray-200 p-2">
-
-    <div id="mainApp" class="max-w-md mx-auto bg-white rounded-3xl shadow-2xl overflow-hidden flex flex-col min-h-screen">
+        :root { --primary: #1e293b; --accent: #3b82f6; --win: #9333ea; --danger: #ef4444; }
+        * { box-sizing: border-box; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+        body { background: #f1f5f9; margin: 0; padding: 0; display: flex; justify-content: center; }
         
-        <div class="p-4 bg-slate-800 text-white">
-            <div class="flex justify-between items-center mb-3">
-                <h2 class="font-bold text-blue-400">2D PRO MANAGER</h2>
-                <button onclick="showHistory()" class="bg-slate-600 px-3 py-1 rounded text-xs">📜 မှတ်တမ်း</button>
-            </div>
-            <div class="flex gap-2 mb-2">
-                <input type="text" id="newNameInput" placeholder="နာမည်အသစ်" class="flex-1 p-2 rounded text-black text-sm outline-none">
-                <button onclick="addNewName()" class="bg-blue-500 px-4 py-1 rounded text-sm font-bold">ပေါင်းထည့်</button>
-            </div>
-            <div id="nameTags" class="flex flex-wrap gap-2 mb-2 max-h-20 overflow-y-auto">
-                </div>
-            <select id="nameSelector" class="w-full p-2 rounded text-black font-bold text-sm bg-white border-2 border-blue-400"></select>
-        </div>
+        .app { width: 100%; max-width: 450px; background: white; min-height: 100vh; display: flex; flex-direction: column; box-shadow: 0 0 20px rgba(0,0,0,0.1); }
+        
+        /* Header & Names */
+        header { background: var(--primary); color: white; padding: 20px; border-bottom-left-radius: 25px; border-bottom-right-radius: 25px; }
+        .head-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
+        .name-input-group { display: flex; gap: 8px; margin-bottom: 10px; }
+        .name-input-group input { flex: 1; padding: 10px; border-radius: 8px; border: none; outline: none; }
+        .name-input-group button { background: var(--accent); color: white; border: none; padding: 10px 15px; border-radius: 8px; font-weight: bold; cursor: pointer; }
+        .name-tags { display: flex; flex-wrap: wrap; gap: 5px; margin-bottom: 10px; max-height: 50px; overflow-y: auto; }
+        .tag { background: #475569; padding: 4px 10px; border-radius: 20px; font-size: 11px; display: flex; align-items: center; gap: 6px; }
+        .tag span { color: #f87171; cursor: pointer; font-weight: bold; font-size: 14px; }
+        select { width: 100%; padding: 12px; border-radius: 10px; border: 2px solid var(--accent); font-weight: bold; appearance: none; background: white; }
 
-        <div class="p-3 bg-purple-100 flex gap-2 border-b border-purple-200">
-            <input type="number" id="winInput" placeholder="ပေါက်" class="w-20 p-2 rounded border-2 border-purple-400 text-center font-bold text-xl">
-            <button onclick="checkWinner()" class="flex-1 bg-purple-600 text-white py-2 rounded font-bold">ပေါက်ဂဏန်းစစ်/သိမ်းမည်</button>
-        </div>
+        /* Win Area */
+        .win-section { background: #f3e8ff; padding: 15px; display: flex; gap: 10px; align-items: center; border-bottom: 1px solid #ddd; }
+        #winNum { width: 80px; padding: 10px; text-align: center; font-size: 24px; font-weight: bold; border: 2px solid var(--win); border-radius: 12px; color: var(--win); }
+        .btn-check { flex: 1; background: var(--win); color: white; border: none; padding: 15px; border-radius: 12px; font-weight: bold; cursor: pointer; }
 
-        <div class="flex-1 overflow-y-auto p-2" style="max-height: 350px;">
-            <table class="w-full text-sm">
-                <thead class="bg-gray-100 sticky top-0">
-                    <tr class="border-b">
-                        <th class="p-2 text-gray-500">ဂဏန်း</th>
-                        <th class="text-gray-500">ငွေ</th>
-                        <th class="text-gray-500">အမည်</th>
-                        <th class="text-gray-500">-</th>
-                    </tr>
-                </thead>
-                <tbody id="recordList" class="text-center font-bold text-gray-700"></tbody>
-            </table>
-        </div>
+        /* Records Table */
+        .record-container { flex: 1; overflow-y: auto; padding: 10px; }
+        table { width: 100%; border-collapse: collapse; }
+        th { text-align: center; font-size: 12px; color: #64748b; padding-bottom: 10px; border-bottom: 1px solid #eee; }
+        td { padding: 12px 5px; text-align: center; border-bottom: 1px solid #f8fafc; font-weight: bold; }
+        .td-num { color: var(--accent); font-size: 18px; }
+        .td-name { font-size: 11px; color: #f97316; text-transform: uppercase; }
+        .btn-del { color: #cbd5e1; border: none; background: none; font-size: 20px; cursor: pointer; }
+        .btn-del:hover { color: var(--danger); }
 
-        <div class="p-3 bg-slate-50 border-t flex justify-between items-end">
-            <button onclick="clearAllData()" class="bg-red-100 text-red-600 px-3 py-1 rounded-lg text-xs font-bold border border-red-200">CLEAR ALL</button>
-            <div class="text-right">
-                <p class="text-[10px] text-gray-400 font-bold uppercase">Total Amount</p>
-                <span id="totalDisplay" class="text-3xl font-black text-red-600 leading-none">0</span>
-            </div>
-        </div>
-
-        <div class="bg-gray-100 p-3 border-t">
-            <div class="grid grid-cols-2 gap-2 mb-2">
-                <input type="number" id="displayNum" placeholder="ဂဏန်း" readonly class="p-3 text-center text-2xl font-black border-2 border-blue-400 rounded-xl bg-white">
-                <input type="number" id="displayAmt" placeholder="ငွေ" class="p-3 text-center text-2xl font-black border-2 border-green-400 rounded-xl outline-none">
-            </div>
-            <div class="grid grid-cols-4 gap-1">
-                <button onclick="press('7')" class="bg-white p-4 rounded-xl shadow font-bold text-xl">7</button>
-                <button onclick="press('8')" class="bg-white p-4 rounded-xl shadow font-bold text-xl">8</button>
-                <button onclick="press('9')" class="bg-white p-4 rounded-xl shadow font-bold text-xl">9</button>
-                <button onclick="special('R')" class="bg-orange-500 text-white p-4 rounded-xl font-bold text-xl">R</button>
-                
-                <button onclick="press('4')" class="bg-white p-4 rounded-xl shadow font-bold text-xl">4</button>
-                <button onclick="press('5')" class="bg-white p-4 rounded-xl shadow font-bold text-xl">5</button>
-                <button onclick="press('6')" class="bg-white p-4 rounded-xl shadow font-bold text-xl">6</button>
-                <button onclick="special('ပါ')" class="bg-orange-500 text-white p-4 rounded-xl font-bold">ပါ</button>
-                
-                <button onclick="press('1')" class="bg-white p-4 rounded-xl shadow font-bold text-xl">1</button>
-                <button onclick="press('2')" class="bg-white p-4 rounded-xl shadow font-bold text-xl">2</button>
-                <button onclick="press('3')" class="bg-white p-4 rounded-xl shadow font-bold text-xl">3</button>
-                <button onclick="addEntry()" class="bg-green-600 text-white p-4 rounded-xl row-span-2 font-black text-2xl">OK</button>
-                
-                <button onclick="press('0')" class="bg-white p-4 rounded-xl shadow font-bold text-xl">0</button>
-                <button onclick="press('00')" class="bg-white p-4 rounded-xl shadow font-bold text-xl">00</button>
-                <button onclick="delPress()" class="bg-red-500 text-white p-4 rounded-xl font-bold text-lg italic">DEL</button>
-            </div>
-            <div class="grid grid-cols-3 gap-1 mt-1">
-                <button onclick="special('ထိပ်')" class="bg-slate-700 text-white py-3 rounded-xl font-bold text-xs uppercase">Top</button>
-                <button onclick="special('နောက်')" class="bg-slate-700 text-white py-3 rounded-xl font-bold text-xs uppercase">Back</button>
-                <button onclick="special('အပူး')" class="bg-slate-700 text-white py-3 rounded-xl font-bold text-xs uppercase">Pair</button>
-            </div>
-        </div>
-    </div>
-
-    <div id="winPage" class="page-overlay p-6 flex flex-col">
-        <div class="flex justify-between items-center mb-6">
-            <h2 class="text-2xl font-black text-purple-700">ပေါက်သူစာရင်း</h2>
-            <button onclick="closePage('winPage')" class="text-4xl">&times;</button>
-        </div>
-        <div id="winResultDisplay" class="flex-1 overflow-y-auto"></div>
-        <button onclick="closePage('winPage')" class="w-full bg-blue-600 text-white py-4 rounded-2xl font-bold mt-4">ပြန်ထွက်မည်</button>
-    </div>
-
-    <div id="historyPage" class="page-overlay p-6 flex flex-col bg-gray-50">
-        <div class="flex justify-between items-center mb-6">
-            <h2 class="text-2xl font-black text-slate-800">ပေါက်ဂဏန်းမှတ်တမ်း</h2>
-            <button onclick="closePage('historyPage')" class="text-4xl">&times;</button>
-        </div>
-        <div id="historyListDisplay" class="flex-1 overflow-y-auto space-y-4"></div>
-    </div>
-
-    <script>
-        let records = JSON.parse(localStorage.getItem('2D_RECORDS')) || [];
-        let customNames = JSON.parse(localStorage.getItem('2D_NAMES')) || ["Admin"];
-        let winHistory = JSON.parse(localStorage.getItem('2D_HISTORY')) || [];
-
-        window.onload = function() {
-            renderNames();
-            renderUI();
-        };
-
-        function press(v) {
-            let n = document.getElementById('displayNum');
-            if(v === '00') { n.value = '00'; return; }
-            if(n.value.length >= 2) n.value = v; else n.value += v;
-        }
-        function delPress() { document.getElementById('displayNum').value = ''; }
-
-        function addNewName() {
-            let val = document.getElementById('newNameInput').value.trim();
-            if(val && !customNames.includes(val)) {
-                customNames.push(val);
-                localStorage.setItem('2D_NAMES', JSON.stringify(customNames));
-                renderNames();
-                document.getElementById('newNameInput').value = '';
-            }
-        }
-        function deleteName(n) {
-            if(n === "Admin") return;
-            customNames = customNames.filter(i => i !== n);
-            localStorage.setItem('2D_NAMES', JSON.stringify(customNames));
-            renderNames();
-        }
-        function renderNames() {
-            const sel = document.getElementById('nameSelector');
-            const tags = document.getElementById('nameTags');
-            sel.innerHTML = ''; tags.innerHTML = '';
-            customNames.forEach(n => {
-                sel.innerHTML += `<option value="${n}">${n}</option>`;
-                tags.innerHTML += `<div class="bg-slate-600 px-2 py-1 rounded text-[10px] flex items-center gap-2">${n}<span onclick="deleteName('${n}')" class="text-red-400 font-bold cursor-pointer">×</span></div>`;
-            });
-        }
-
-        function addEntry() {
-            const n = document.getElementById('displayNum').value;
-            const a = document.getElementById('displayAmt').value;
-            const nm = document.getElementById('nameSelector').value;
-            if(!n || !a) return;
-            records.push({ id: Date.now(), num: n.padStart(2, '0'), amt: parseInt(a), name: nm });
-            save();
-            document.getElementById('displayNum').value = '';
-        }
-
-        function special(type) {
-            const n = document.getElementById('displayNum').value;
-            const a = document.getElementById('displayAmt').value;
-            const nm = document.getElementById('nameSelector').value;
-            if(!a) return alert("ငွေပမာဏ အရင်ထည့်ပါ");
-            let now = Date.now();
-            if(type === 'R') {
-                if(n.length < 2) return;
-                let r = n.split('').reverse().join('');
-                records.push({ id: now, num: n, amt: parseInt(a), name: nm });
-                if(n !== r) records.push({ id: now+1, num: r, amt: parseInt(a), name: nm });
-            } else if(type === 'ပါ') {
-                for(let i=0; i<=9; i++) {
-                    records.push({ id: now+i, num: n+i, amt: parseInt(a), name: nm });
-                    if(n!=i) records.push({ id: now+i+20, num: i+n, amt: parseInt(a), name: nm });
-                }
-            } else if(type === 'ထိပ်') {
-                for(let i=0; i<=9; i++) records.push({ id: now+i, num: n+i, amt: parseInt(a), name: nm });
-            } else if(type === 'နောက်') {
-                for(let i=0; i<=9; i++) records.push({ id: now+i, num: i+n, amt: parseInt(a), name: nm });
-            } else if(type === 'အပူး') {
-                ['00','11','22','33','44','55','66','77','88','99'].forEach((p, i) => {
-                    records.push({ id: now+i, num: p, amt: parseInt(a), name: nm });
-                });
-            }
-            save();
-            document.getElementById('displayNum').value = '';
-        }
-
-        function save() {
-            localStorage.setItem('2D_RECORDS', JSON.stringify(records));
-            renderUI();
-        }
-
-        function renderUI() {
-            const list = document.getElementById('recordList');
-            list.innerHTML = ''; let total = 0;
-            records.slice().reverse().forEach(r => {
-                total += r.amt;
-                list.innerHTML += `<tr class="border-b">
-                    <td class="p-3 text-blue-600 text-lg">${r.num}</td>
-                    <td>${r.amt.toLocaleString()}</td>
-                    <td class="text-orange-500 text-[10px] uppercase">${r.name}</td>
-                    <td><button onclick="delRec(${r.id})" class="text-red-500 text-xl">×</button></td>
-                </tr>`;
-            });
-            document.getElementById('totalDisplay').innerText = total.toLocaleString();
-        }
-
-        function delRec(id) { records = records.filter(r => r.id !== id); save(); }
-        function clearAllData() { if(confirm("စာရင်းအားလုံးကို ဖျက်မည်မှာ သေချာပါသလား?")) { records = []; save(); } }
-
-        function checkWinner() {
-            let win = document.getElementById('winInput').value;
-            if(!win) return alert("ပေါက်ဂဏန်းထည့်ပါ");
-            win = win.padStart(2, '0');
-            let rev = win.split('').reverse().join('');
-            let winners = records.filter(x => x.num === win || x.num === rev);
-            
-            // သိမ်းဆည်းရန်
-            let date = new Date().toLocaleString();
-            winHistory.unshift({ date, winNum: win, winners: winners });
-            localStorage.setItem('2D_HISTORY', JSON.stringify(winHistory));
-
-            const display = document.getElementById('winResultDisplay');
-            let html = `<div class="bg-purple-600 p-8 rounded-3xl text-center text-white mb-6 shadow-xl">
-                <p class="opacity-70 text-sm">ထွက်ဂဏန်း</p><h1 class="text-6xl font-black">${win}</h1>
-            </div>`;
-
-            if(winners.length === 0) html += '<p class="text-center text-gray-400 py-10 italic">ကံထူးသူမရှိပါ</p>';
-            else winners.forEach(w => {
-                html += `<div class="p-4 bg-white border shadow-sm rounded-2xl flex justify-between mb-2">
-                    <div><b>${w.name}</b><br><small class="text-gray-400">ဂဏန်း: ${w.num}</small></div>
-                    <div class="text-xl font-bold text-green-600">${w.amt.toLocaleString()}</div>
-                </div>`;
-            });
-            display.innerHTML = html;
-            document.getElementById('winPage').classList.add('active');
-        }
-
-        function showHistory() {
-            const hDisplay = document.getElementById('historyListDisplay');
-            hDisplay.innerHTML = '';
-            if(winHistory.length === 0) hDisplay.innerHTML = '<p class="text-center text-gray-400 py-20 italic">မှတ်တမ်းမရှိသေးပါ</p>';
-            winHistory.forEach((h, idx) => {
-                hDisplay.innerHTML += `<div class="bg-white p-4 rounded-2xl shadow-sm border border-gray-200">
-                    <div class="flex justify-between items-center">
-                        <span class="text-[10px] text-gray-400 font-bold">${h.date}</span>
-                        <span class="bg-purple-700 text-white px-4 py-1 rounded-full font-black text-xl">${h.winNum}</span>
-                    </div>
-                    <p class="text-xs mt-2 text-gray-600 font-bold">ပေါက်သူအရေအတွက်: ${h.winners.length} ဦး</p>
-                    <button onclick="delHistory(${idx})" class="text-red-500 text-[10px] mt-2 underline">ဖျက်မည်</button>
-                </div>`;
-            });
-            document.getElementById('historyPage').classList.add('active');
-        }
-
-        function delHistory(idx) {
-            if(confirm("ဤမှတ်တမ်းကို ဖျက်မလား?")) {
-                winHistory.splice(idx, 1);
-                localStorage.setItem('2D_HISTORY', JSON.stringify(winHistory));
-                showHistory();
-            }
-        }
-        function closePage(id) { document.getElementById(id).classList.remove('active'); }
-    </script>
-</body>
-</html>        .footer-total { padding: 10px 15px; background: #f9fafb; border-top: 1px solid #ddd; display: flex; justify-content: space-between; align-items: center; }
-        .btn-clear { color: #ef4444; background: #fee2e2; border: 1px solid #fca5a5; padding: 5px 10px; border-radius: 5px; font-size: 11px; font-weight: bold; cursor: pointer; }
-        .amt-total { font-size: 22px; font-weight: 900; color: #b91c1c; }
+        /* Bottom Info */
+        .summary { padding: 15px; background: #f8fafc; border-top: 1px solid #eee; display: flex; justify-content: space-between; align-items: flex-end; }
+        .btn-clear { background: #fee2e2; color: var(--danger); border: 1px solid #fecaca; padding: 6px 12px; border-radius: 8px; font-size: 12px; font-weight: bold; cursor: pointer; }
+        .total-box { text-align: right; }
+        .total-box label { font-size: 10px; color: #94a3b8; font-weight: bold; }
+        .total-box div { font-size: 28px; font-weight: 900; color: var(--danger); }
 
         /* Keypad */
-        .keypad-area { background: #d1d5db; padding: 10px; border-top: 1px solid #bbb; }
-        .key-inputs { display: grid; grid-template-cols: 1fr 1fr; gap: 10px; margin-bottom: 10px; }
-        .key-inputs input { padding: 12px; text-align: center; font-size: 22px; font-weight: bold; border-radius: 10px; border: 2px solid #6b7280; }
-        #numIn { border-color: #3b82f6; background: #fff; }
-        #amtIn { border-color: #10b981; }
+        .keypad { background: #e2e8f0; padding: 15px; border-top-left-radius: 25px; border-top-right-radius: 25px; }
+        .key-inputs { display: grid; grid-template-cols: 1fr 1fr; gap: 10px; margin-bottom: 15px; }
+        .key-inputs input { padding: 15px; text-align: center; font-size: 24px; font-weight: bold; border-radius: 15px; border: 3px solid #cbd5e1; outline: none; }
+        #inNum { border-color: var(--accent); background: white; }
+        #inAmt { border-color: #22c55e; }
 
-        .key-grid { display: grid; grid-template-cols: repeat(4, 1fr); gap: 6px; }
-        .k-btn { background: white; border: none; padding: 15px 0; border-radius: 8px; font-size: 20px; font-weight: bold; cursor: pointer; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
-        .k-btn:active { background: #e5e7eb; }
-        .k-orange { background: #f97316; color: white; }
-        .k-green { background: #059669; color: white; grid-row: span 2; }
-        .k-red { background: #dc2626; color: white; }
-        .k-dark { background: #374151; color: white; font-size: 12px; padding: 10px 0; }
-        .sp-row { grid-template-cols: repeat(3, 1fr); margin-top: 6px; display: grid; gap: 6px; }
+        .keys { display: grid; grid-template-cols: repeat(4, 1fr); gap: 8px; }
+        .k { background: white; border: none; padding: 18px 0; border-radius: 12px; font-size: 20px; font-weight: bold; cursor: pointer; box-shadow: 0 3px 0 #cbd5e1; }
+        .k:active { transform: translateY(2px); box-shadow: none; }
+        .k-orange { background: #f97316; color: white; box-shadow: 0 3px 0 #ea580c; }
+        .k-green { background: #16a34a; color: white; grid-row: span 2; box-shadow: 0 3px 0 #15803d; }
+        .k-red { background: var(--danger); color: white; box-shadow: 0 3px 0 #b91c1c; }
+        .k-dark { background: #334155; color: white; font-size: 12px; padding: 12px 0; box-shadow: 0 3px 0 #1e293b; }
+        .sp-keys { display: grid; grid-template-cols: repeat(3, 1fr); gap: 8px; margin-top: 8px; }
 
-        /* Pages */
-        .full-page { position: fixed; inset: 0; background: white; z-index: 100; display: none; flex-direction: column; padding: 20px; }
-        .show { display: flex !important; }
-        .win-card { background: #7c3aed; color: white; padding: 30px; border-radius: 20px; text-align: center; margin-bottom: 20px; }
-        .win-list-item { padding: 15px; border: 1px solid #eee; border-radius: 10px; margin-bottom: 10px; display: flex; justify-content: space-between; }
-        .close-btn { font-size: 30px; text-align: right; cursor: pointer; color: #999; }
+        /* Full Screen Overlays */
+        .overlay { position: fixed; inset: 0; background: white; z-index: 100; display: none; flex-direction: column; padding: 25px; }
+        .active { display: flex !important; }
+        .close-btn { font-size: 35px; text-align: right; cursor: pointer; color: #94a3b8; line-height: 1; }
+        .win-display { background: var(--win); color: white; padding: 40px; border-radius: 25px; text-align: center; margin-bottom: 20px; }
+        .scroll-area { flex: 1; overflow-y: auto; }
+        .list-item { padding: 15px; border: 1px solid #f1f5f9; border-radius: 15px; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 2px 5px rgba(0,0,0,0.03); }
     </style>
 </head>
 <body>
 
-<div class="app-container">
-    <div class="header">
-        <div class="name-box">
-            <input type="text" id="nameInput" placeholder="နာမည်သစ်">
-            <button onclick="addName()">ADD</button>
+<div class="app">
+    <header>
+        <div class="head-top">
+            <h2 style="margin:0; color:#38bdf8; font-size: 20px;">2D PRO MANAGER</h2>
+            <button onclick="openPage('histPage')" style="background:#475569; border:none; color:white; padding:5px 10px; border-radius:5px; cursor:pointer; font-size:12px;">📜 မှတ်တမ်း</button>
         </div>
-        <div id="tagContainer" class="tag-list"></div>
-        <select id="nameSelect"></select>
+        <div class="name-input-group">
+            <input type="text" id="nameInput" placeholder="နာမည်အသစ်...">
+            <button onclick="addName()">ပေါင်းထည့်</button>
+        </div>
+        <div id="tagBox" class="name-tags"></div>
+        <select id="nameSel"></select>
+    </header>
+
+    <div class="win-section">
+        <input type="number" id="winNum" placeholder="ပေါက်">
+        <button class="btn-check" onclick="checkWin()">ပေါက်ဂဏန်းစစ်မည်</button>
     </div>
 
-    <div class="win-bar">
-        <input type="number" id="winInput" placeholder="ပေါက်">
-        <button class="btn-win" onclick="checkWin()">စစ်မည်/သိမ်းမည်</button>
-        <button class="btn-hist" onclick="viewHistory()">📜</button>
-    </div>
-
-    <div class="table-area">
+    <div class="record-container">
         <table>
             <thead><tr><th>ဂဏန်း</th><th>ငွေ</th><th>အမည်</th><th>-</th></tr></thead>
-            <tbody id="mainTableBody"></tbody>
+            <tbody id="mainList"></tbody>
         </table>
     </div>
 
-    <div class="footer-total">
-        <button class="btn-clear" onclick="clearData()">CLEAR ALL</button>
-        <div style="text-align: right;">
-            <div style="font-size: 10px; color: #888;">TOTAL</div>
-            <div id="totalDisplay" class="amt-total">0</div>
+    <div class="summary">
+        <button class="btn-clear" onclick="clearRecords()">CLEAR ALL</button>
+        <div class="total-box">
+            <label>TOTAL AMOUNT</label>
+            <div id="totalDisplay">0</div>
         </div>
     </div>
 
-    <div class="keypad-area">
+    <div class="keypad">
         <div class="key-inputs">
-            <input type="number" id="numIn" placeholder="ဂဏန်း" readonly>
-            <input type="number" id="amtIn" placeholder="ငွေ">
+            <input type="number" id="inNum" placeholder="ဂဏန်း" readonly>
+            <input type="number" id="inAmt" placeholder="ငွေ">
         </div>
-        <div class="key-grid">
-            <button class="k-btn" onclick="kPress('7')">7</button>
-            <button class="k-btn" onclick="kPress('8')">8</button>
-            <button class="k-btn" onclick="kPress('9')">9</button>
-            <button class="k-btn k-orange" onclick="special('R')">R</button>
-            <button class="k-btn" onclick="kPress('4')">4</button>
-            <button class="k-btn" onclick="kPress('5')">5</button>
-            <button class="k-btn" onclick="kPress('6')">6</button>
-            <button class="k-btn k-orange" onclick="special('ပါ')">ပါ</button>
-            <button class="k-btn" onclick="kPress('1')">1</button>
-            <button class="k-btn" onclick="kPress('2')">2</button>
-            <button class="k-btn" onclick="kPress('3')">3</button>
-            <button class="k-btn k-green" onclick="submitData()">OK</button>
-            <button class="k-btn" onclick="kPress('0')">0</button>
-            <button class="k-btn" onclick="kPress('00')">00</button>
-            <button class="k-btn k-red" onclick="kClear()">DEL</button>
+        <div class="keys">
+            <button class="k" onclick="press('7')">7</button>
+            <button class="k" onclick="press('8')">8</button>
+            <button class="k" onclick="press('9')">9</button>
+            <button class="k k-orange" onclick="run('R')">R</button>
+            <button class="k" onclick="press('4')">4</button>
+            <button class="k" onclick="press('5')">5</button>
+            <button class="k" onclick="press('6')">6</button>
+            <button class="k k-orange" onclick="run('ပါ')">ပါ</button>
+            <button class="k" onclick="press('1')">1</button>
+            <button class="k" onclick="press('2')">2</button>
+            <button class="k" onclick="press('3')">3</button>
+            <button class="k k-green" onclick="submit()">OK</button>
+            <button class="k" onclick="press('0')">0</button>
+            <button class="k" onclick="press('00')">00</button>
+            <button class="k k-red" onclick="del()">DEL</button>
         </div>
-        <div class="sp-row">
-            <button class="k-btn k-dark" onclick="special('ထိပ်')">TOP</button>
-            <button class="k-btn k-dark" onclick="special('နောက်')">BACK</button>
-            <button class="k-btn k-dark" onclick="special('အပူး')">PAIR</button>
+        <div class="sp-keys">
+            <button class="k k-dark" onclick="run('ထိပ်')">TOP</button>
+            <button class="k k-dark" onclick="run('နောက်')">BACK</button>
+            <button class="k k-dark" onclick="run('အပူး')">PAIR</button>
         </div>
     </div>
 </div>
 
-<div id="winnerPage" class="full-page">
-    <div class="close-btn" onclick="closePage('winnerPage')">&times;</div>
-    <div id="winnerResultContent"></div>
-    <button onclick="closePage('winnerPage')" style="width:100%; padding:15px; background:#3b82f6; color:white; border:none; border-radius:10px; font-weight:bold; margin-top:10px;">ပြန်ထွက်မည်</button>
+<div id="winPage" class="overlay">
+    <div class="close-btn" onclick="closePage('winPage')">&times;</div>
+    <div id="winContent"></div>
+    <button onclick="closePage('winPage')" style="width:100%; padding:18px; background:var(--accent); color:white; border:none; border-radius:15px; font-weight:bold; font-size:16px; margin-top:15px;">BACK TO APP</button>
 </div>
 
-<div id="historyPage" class="full-page">
-    <div class="close-btn" onclick="closePage('historyPage')">&times;</div>
-    <h2 style="text-align:center;"> Winning History </h2>
-    <div id="historyContent" style="flex:1; overflow-y:auto;"></div>
+<div id="histPage" class="overlay">
+    <div class="close-btn" onclick="closePage('histPage')">&times;</div>
+    <h2 style="text-align:center; margin-bottom:20px;">ထွက်ဂဏန်းမှတ်တမ်း</h2>
+    <div id="histContent" class="scroll-area"></div>
 </div>
 
 <script>
-    let records = JSON.parse(localStorage.getItem('2D_R')) || [];
-    let names = JSON.parse(localStorage.getItem('2D_N')) || ["Admin"];
-    let history = JSON.parse(localStorage.getItem('2D_H')) || [];
-
-    function updateAll() {
-        renderNames();
-        renderTable();
-    }
-    window.onload = updateAll;
-
-    // Keypad Logic
-    function kPress(v) {
-        let n = document.getElementById('numIn');
-        if(v === '00') n.value = '00';
-        else if(n.value.length >= 2) n.value = v;
-        else n.value += v;
-    }
-    function kClear() { document.getElementById('numIn').value = ''; }
-
-    // Name Management
-    function addName() {
-        let val = document.getElementById('nameInput').value.trim();
-        if(val && !names.includes(val)) {
-            names.push(val);
-            localStorage.setItem('2D_N', JSON.stringify(names));
-            renderNames();
-            document.getElementById('nameInput').value = '';
-        }
-    }
-    function deleteName(n) {
-        if(n === "Admin") return;
-        names = names.filter(i => i !== n);
-        localStorage.setItem('2D_N', JSON.stringify(names));
-        renderNames();
-    }
-    function renderNames() {
-        const s = document.getElementById('nameSelect');
-        const t = document.getElementById('tagContainer');
-        s.innerHTML = ''; t.innerHTML = '';
-        names.forEach(n => {
-            s.innerHTML += `<option value="${n}">${n}</option>`;
-            t.innerHTML += `<div class="tag">${n}<span onclick="deleteName('${n}')">&times;</span></div>`;
-        });
-    }
-
-    // Data Actions
-    function submitData() {
-        const n = document.getElementById('numIn').value;
-        const a = document.getElementById('amtIn').value;
-        const name = document.getElementById('nameSelect').value;
-        if(!n || !a) return alert("ဂဏန်းနှင့် ငွေထည့်ပါ");
-        records.push({ id: Date.now(), n: n.padStart(2, '0'), a: parseInt(a), name: name });
-        saveData();
-        document.getElementById('numIn').value = '';
-    }
-
-    function special(type) {
-        const n = document.getElementById('numIn').value;
-        const a = document.getElementById('amtIn').value;
-        const name = document.getElementById('nameSelect').value;
-        if(!a) return alert("ငွေပမာဏ အရင်ထည့်ပါ");
-
-        if(type === 'R') {
-            if(n.length < 2) return;
-            let rev = n.split('').reverse().join('');
-            records.push({ id: Date.now(), n: n, a: parseInt(a), name: name });
-            if(n !== rev) records.push({ id: Date.now()+1, n: rev, a: parseInt(a), name: name });
-        } else if(type === 'ပါ') {
-            if(!n) return;
-            for(let i=0; i<=9; i++) {
-                records.push({ id: Date.now()+i, n: n+i, a: parseInt(a), name: name });
-                if(n!=i) records.push({ id: Date.now()+i+20, n: i+n, a: parseInt(a), name: name });
-            }
-        } else if(type === 'ထိပ်') {
-            for(let i=0; i<=9; i++) records.push({ id: Date.now()+i, n: n+i, a: parseInt(a), name: name });
-        } else if(type === 'နောက်') {
-            for(let i=0; i<=9; i++) records.push({ id: Date.now()+i, n: i+n, a: parseInt(a), name: name });
-        } else if(type === 'အပူး') {
-            ['00','11','22','33','44','55','66','77','88','99'].forEach((p, i) => {
-                records.push({ id: Date.now()+i, n: p, a: parseInt(a), name: name });
-            });
-        }
-        saveData();
-        document.getElementById('numIn').value = '';
-    }
-
-    function saveData() {
-        localStorage.setItem('2D_R', JSON.stringify(records));
-        renderTable();
-    }
-
-    function renderTable() {
-        const body = document.getElementById('mainTableBody');
-        body.innerHTML = ''; let total = 0;
-        records.slice().reverse().forEach(r => {
-            total += r.a;
-            body.innerHTML += `<tr><td class="txt-num">${r.n}</td><td>${r.a.toLocaleString()}</td><td class="txt-name">${r.name}</td><td><button onclick="delRec(${r.id})" style="color:red; border:none; background:none; font-size:18px;">&times;</button></td></tr>`;
-        });
-        document.getElementById('totalDisplay').innerText = total.toLocaleString();
-    }
-
-    function delRec(id) { records = records.filter(r => r.id !== id); saveData(); }
-    function clearData() { if(confirm("အကုန်ဖျက်မှာလား?")) { records = []; saveData(); } }
-
-    // Win Logic
-    function checkWin() {
-        let win = document.getElementById('winInput').value;
-        if(!win) return alert("ပေါက်ဂဏန်းထည့်ပါ");
-        win = win.padStart(2, '0');
-        let rev = win.split('').reverse().join('');
-        let winners = records.filter(x => x.n === win || x.n === rev);
-        
-        let d = new Date().toLocaleString();
-        history.unshift({ date: d, win: win, winners: winners });
-        localStorage.setItem('2D_H', JSON.stringify(history));
-
-        const content = document.getElementById('winnerResultContent');
-        let html = `<div class="win-card"><small>ထွက်ဂဏန်း</small><h1 style="font-size:60px; margin:10px 0;">${win}</h1></div>`;
-        if(winners.length === 0) html += '<p style="text-align:center; color:#999;">ကံထူးသူမရှိပါ</p>';
-        else winners.forEach(w => {
-            html += `<div class="win-list-item"><div><b>${w.name}</b><br><small>ဂဏန်း: ${w.n}</small></div><div style="color:green; font-weight:bold;">${w.a.toLocaleString()}</div></div>`;
-        });
-        content.innerHTML = html;
-        document.getElementById('winnerPage').classList.add('show');
-    }
-
-    function viewHistory() {
-        const hContent = document.getElementById('historyContent');
-        hContent.innerHTML = '';
-        if(history.length === 0) hContent.innerHTML = '<p style="text-align:center; padding:50px; color:#999;">မှတ်တမ်းမရှိသေးပါ</p>';
-        history.forEach((h, i) => {
-            hContent.innerHTML += `<div class="win-list-item"><div><small>${h.date}</small><br>ပေါက်ဂဏန်း: <b>${h.win}</b></div><div>ပေါက်သူ: ${h.winners.length} ဦး <button onclick="delHistory(${i})" style="color:red; border:none; background:none; margin-left:10px;">ဖျက်</button></div></div>`;
-        });
-        document.getElementById('historyPage').classList.add('show');
-    }
-    function delHistory(i) { history.splice(i, 1); localStorage.setItem('2D_H', JSON.stringify(history)); viewHistory(); }
-    function closePage(id) { document.getElementById(id).classList.remove('show'); }
-</script>
-
-</body>
-</html>
+    let recs = JSON.parse(localStorage.getItem('P2D_RECS')) || [];
+    let names =
