@@ -1,84 +1,110 @@
-let records = JSON.parse(localStorage.getItem('my2DRecords')) || [];
+let records = JSON.parse(localStorage.getItem('my2DProData')) || [];
 displayRecords();
 
 function addData() {
+    const name = document.getElementById('cusName').value || "Unknown";
     const num = document.getElementById('numInput').value;
     const amt = document.getElementById('amtInput').value;
 
-    if (!num || !amt) {
-        alert("ဂဏန်းနှင့် ပမာဏ ထည့်သွင်းပါ");
-        return;
-    }
+    if (!num || !amt) return alert("ဖြည့်စွက်ရန်လိုအပ်သည်");
 
-    const newRecord = {
+    saveEntry(name, num, amt);
+    clearInputs();
+}
+
+function saveEntry(name, num, amt) {
+    records.unshift({
         id: Date.now(),
-        number: num,
+        name: name,
+        number: num.toString().padStart(2, '0'),
         amount: parseInt(amt),
-        time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
-    };
-
-    records.unshift(newRecord); // အသစ်ကို အပေါ်ဆုံးကပြမယ်
+        time: new Date().toLocaleTimeString()
+    });
     saveAndRefresh();
+}
 
+function addSpecial(type) {
+    const name = document.getElementById('cusName').value || "Unknown";
+    const val = document.getElementById('numInput').value;
+    const amt = document.getElementById('amtInput').value;
+
+    if (!amt) return alert("ပမာဏ အရင်ထည့်ပါ");
+
+    if (type === 'R') {
+        if (!val || val.length !== 2) return alert("ဂဏန်း ၂ လုံးဖြစ်ရမည်");
+        let rev = val.split('').reverse().join('');
+        saveEntry(name, val, amt);
+        if (val !== rev) saveEntry(name, rev, amt);
+    } 
+    else if (type === 'အပါ') {
+        for(let i=0; i<=9; i++) {
+            saveEntry(name, val + i, amt);
+            if(val != i) saveEntry(name, i + val, amt);
+        }
+    }
+    else if (type === 'ထိပ်') {
+        for(let i=0; i<=9; i++) saveEntry(name, val + i, amt);
+    }
+    else if (type === 'နောက်') {
+        for(let i=0; i<=9; i++) saveEntry(name, i + val, amt);
+    }
+    else if (type === 'အပူး') {
+        const pairs = ['00','11','22','33','44','55','66','77','88','99'];
+        pairs.forEach(p => saveEntry(name, p, amt));
+    }
+    clearInputs();
+}
+
+function checkWinners() {
+    const win = document.getElementById('winNum').value;
+    if(!win) return;
+    
+    // ပေါက်ဂဏန်းနဲ့ သူ့ရဲ့ R ကိုပါ စစ်ပေးမယ်
+    let winRev = win.split('').reverse().join('');
+    
+    const winners = records.filter(r => r.number === win || r.number === winRev);
+    
+    if (winners.length === 0) {
+        alert("ပေါက်သူမရှိပါ");
+    } else {
+        let msg = "ပေါက်သူများစာရင်း:\n";
+        winners.forEach(w => msg += `${w.name}: ${w.number} (${w.amount} ကျပ်)\n`);
+        alert(msg);
+    }
+}
+
+function clearInputs() {
     document.getElementById('numInput').value = '';
-    document.getElementById('amtInput').value = '';
+}
+
+function saveAndRefresh() {
+    localStorage.setItem('my2DProData', JSON.stringify(records));
+    displayRecords();
+}
+
+function displayRecords() {
+    const list = document.getElementById('recordsList');
+    list.innerHTML = '';
+    let total = 0;
+
+    records.forEach(r => {
+        total += r.amount;
+        list.innerHTML += `
+            <div class="bg-gray-50 p-3 rounded-xl flex justify-between items-center border border-gray-100">
+                <div>
+                    <span class="font-bold text-purple-600">${r.number}</span> 
+                    <span class="text-xs text-gray-400 ml-2">(${r.name})</span>
+                </div>
+                <div class="flex items-center gap-4">
+                    <span class="font-bold">${r.amount}</span>
+                    <button onclick="deleteRow(${r.id})" class="text-red-300 text-xs">ဖျက်</button>
+                </div>
+            </div>`;
+    });
+    document.getElementById('totalAmount').innerText = total.toLocaleString();
 }
 
 function deleteRow(id) {
     records = records.filter(r => r.id !== id);
     saveAndRefresh();
-}
-
-function clearAll() {
-    if(confirm("စာရင်းအားလုံးကို ဖျက်မည်မှာ သေချာပါသလား?")) {
-        records = [];
-        saveAndRefresh();
-    }
-}
-
-function saveAndRefresh() {
-    localStorage.setItem('my2DRecords', JSON.stringify(records));
-    displayRecords();
-}
-
-function displayRecords() {
-    const listContainer = document.getElementById('recordsList');
-    const emptyState = document.getElementById('emptyState');
-    const totalAmtEl = document.getElementById('totalAmount');
-    const totalEntriesEl = document.getElementById('totalEntries');
-
-    listContainer.innerHTML = '';
-    let total = 0;
-
-    if (records.length === 0) {
-        emptyState.classList.remove('hidden');
-        listContainer.classList.add('hidden');
-    } else {
-        emptyState.classList.add('hidden');
-        listContainer.classList.remove('hidden');
-    }
-
-    records.forEach(r => {
-        total += r.amount;
-        const item = document.createElement('div');
-        item.className = "bg-white p-4 rounded-2xl shadow-sm border border-gray-50 flex justify-between items-center animate-fade-in";
-        item.innerHTML = `
-            <div class="flex items-center gap-4">
-                <div class="bg-purple-50 text-purple-600 w-12 h-12 rounded-xl flex items-center justify-center font-black text-xl">
-                    ${r.number}
-                </div>
-                <div>
-                    <p class="font-bold text-slate-800">${r.amount} ကျပ်</p>
-                    <p class="text-[10px] text-slate-400 uppercase">${r.time}</p>
-                </div>
-            </div>
-            <button onclick="deleteRow(${r.id})" class="text-slate-300 hover:text-red-500 p-2">
-                <i class="fa-solid fa-trash-can"></i>
-            </button>
-        `;
-        listContainer.appendChild(item);
-    });
-
-    totalAmtEl.innerText = total.toLocaleString();
-    totalEntriesEl.innerText = records.length;
 }
